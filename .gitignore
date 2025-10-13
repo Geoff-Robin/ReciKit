@@ -1,0 +1,6 @@
+*/.venv/*
+.venv
+.env
+*/datasets/*
+datasets
+*.index
