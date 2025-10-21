@@ -1,15 +1,12 @@
 from mcp.server.fastmcp import FastMCP
-import lancedb
 import os
-from sentence_transformers import SentenceTransformer
 from groq import AsyncGroq
 from dotenv import load_dotenv
 from models import WeeklyMealPlan
+from recommendation_controller import get_recommendation
 import prompts
-import pandas as pd
 import json
 import logging
-from async_lru import alru_cache
 import sys
 
 logging.basicConfig(
@@ -28,32 +25,11 @@ logger.info("Initializing MCP Server for RecSys")
 mcp = FastMCP("MCP Server for RecSys")
 
 
-@alru_cache(maxsize=40)
-async def get_recommendation_controller(match: str) -> pd.DataFrame:
-    # TODO: Disclude is to disclude recipes and match is to match recipes, imma work on that using lancedb real quick
-    logger.info(f"get_recommendation_controller called with match: '{match}'")
-    try:
-        vector_db = await lancedb.connect_async("lance_db")
-        table = await vector_db.open_table("recipes")
-        embedder = SentenceTransformer(
-            "./models/all-MiniLM-L6-v2", device="cpu", backend="openvino"
-        )
-        embedded_query = embedder.encode(match, normalize_embeddings=True)
-        search_results = (await table.search(embedded_query)).limit(30)
-        results = await search_results.to_pandas()
-        results = results[["title", "directions", "NER"]]
-        results.rename(columns={"NER": "ingredients"}, inplace=True)
-    except Exception as e:
-        logger.error(f"Error in get_recommendation_controller: {e}", exc_info=True)
-        raise
-    return results
-
-
 @mcp.tool()
-async def get_recommendation(match: str):
+async def get_recommendation_tool(match: str):
     logger.info(f"Tool 'get_recommendation' invoked with match: '{match}'")
     try:
-        results = await get_recommendation_controller(match)
+        results = await get_recommendation(match)
         logger.info(f"Returning {len(results)} recommendations")
         return results
     except Exception as e:
@@ -62,10 +38,10 @@ async def get_recommendation(match: str):
 
 
 @mcp.tool()
-async def get_meal_plan(match: str):
+async def get_meal_plan_tool(match: str, mismatch: str):
     logger.info(f"Tool 'get_meal_plan' invoked with match: '{match}'")
     try:
-        search_results = await get_recommendation_controller(match)
+        search_results = await get_recommendation(match)
         client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
         response = await client.chat.completions.create(
             model="openai/gpt-oss-20b",
@@ -76,7 +52,7 @@ async def get_meal_plan(match: str):
                 },
                 {
                     "role": "user",
-                    "content": f"Recipes DataFrame:\n{search_results.to_string(index=False)}",
+                    "content": f"Recipes DataFrame:\n{search_results.to_string(index=False)}\n\n\nDisclude Recipes with Ingredients: {mismatch}",
                 },
             ],
             response_format={
