@@ -42,6 +42,13 @@ async def get_meal_plan_tool(match: str, mismatch: str):
     logger.info(f"Tool 'get_meal_plan' invoked with match: '{match}'")
     try:
         search_results = await get_recommendation(match)
+        filtered_results = []
+        for result in search_results:
+            filtered_results.append({
+                "title": result["title"],
+                "directions": result["directions"],
+                "ingredients": result["NER"]
+            })
         client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
         response = await client.chat.completions.create(
             model="openai/gpt-oss-20b",
@@ -52,7 +59,7 @@ async def get_meal_plan_tool(match: str, mismatch: str):
                 },
                 {
                     "role": "user",
-                    "content": f"Recipes DataFrame:\n{search_results.to_string(index=False)}\n\n\nDisclude Recipes with Ingredients: {mismatch}",
+                    "content": f"Recipes DataFrame:\n{str(filtered_results)}\n\n\nDisclude Recipes with Ingredients: {mismatch}",
                 },
             ],
             response_format={

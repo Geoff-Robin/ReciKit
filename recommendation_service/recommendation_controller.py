@@ -1,22 +1,24 @@
 from async_lru import alru_cache
-import lancedb
+from qdrant_client import AsyncQdrantClient
 from sentence_transformers import SentenceTransformer
 import pandas as pd
+import os
 
 
 @alru_cache(maxsize=40)
-async def get_recommendation(match: str) -> pd.DataFrame:
+async def get_recommendation(match: str):
 
-    vector_db = await lancedb.connect_async("lance_db")
-    table = await vector_db.open_table("recipes")
+    global qdrant_client 
+    qdrant_client = AsyncQdrantClient(url=os.getenv("QDRANT_URL"),api_key=os.getenv("QDRANT_API_KEY"))
     embedder = SentenceTransformer(
         "./models/all-MiniLM-L6-v2", device="cpu", backend="openvino"
     )
 
     embedded_query = embedder.encode(match, normalize_embeddings=True)
-    search_results = (await table.search(embedded_query)).limit(30)
-
-    results = await search_results.to_pandas()
-    results = results[["title", "directions", "NER"]]
-    results.rename(columns={"NER": "ingredients"}, inplace=True)
-    return results
+    search_results = await qdrant_client.search(
+        collection_name="recipes",
+        query_vector=embedded_query,
+        limit = 30
+    )
+    recommendations = [result.payload for result in search_results]
+    return recommendations
