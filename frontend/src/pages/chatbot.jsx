@@ -85,7 +85,7 @@ export function MessageInputDemo() {
     <div
       className="flex flex-col justify-center items-center min-h-screen text-white p-4"
       style={{
-        backgroundImage: "url('/image.jpeg')",
+        backgroundImage: "url('/image.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

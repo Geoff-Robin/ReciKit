@@ -1,8 +1,13 @@
-import React from "react";
-import { MessageInputDemo } from "./pages/chatbot";
+import React from 'react';
+import LandingPage from './pages/landingpage';
+import './App.css';
 
 function App() {
-  return <MessageInputDemo />;
+  return (
+    <div className="App">
+      <LandingPage />
+    </div>
+  );
 }
 
 export default App;
