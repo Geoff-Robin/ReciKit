@@ -38,10 +38,10 @@ async def get_recommendation_tool(match: str):
 
 
 @mcp.tool()
-async def get_meal_plan_tool(match: str, mismatch: str):
-    logger.info(f"Tool 'get_meal_plan' invoked with match: '{match}'")
+async def get_meal_plan_tool(likes: str, dislikes: str):
+    logger.info(f"Tool 'get_meal_plan' invoked with parameters: match- '{likes}', mismatch- '{dislikes}'")
     try:
-        search_results = await get_recommendation(match)
+        search_results = await get_recommendation(likes, dislikes)
         filtered_results = []
         for result in search_results:
             filtered_results.append({
@@ -59,7 +59,7 @@ async def get_meal_plan_tool(match: str, mismatch: str):
                 },
                 {
                     "role": "user",
-                    "content": f"Recipes DataFrame:\n{str(filtered_results)}\n\n\nDisclude Recipes with Ingredients: {mismatch}",
+                    "content": f"Recipes DataFrame:\n{str(filtered_results)}\n\n\nDisclude Recipes with Ingredients: {dislikes}",
                 },
             ],
             response_format={
