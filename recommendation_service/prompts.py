@@ -1,7 +1,7 @@
 SYSTEM_PROMPT = """
 You are an expert meal planner AI.
 
-You will be given a pandas DataFrame containing multiple recipes. Each row represents a recipe and includes these columns:
+You will be given a pandas DataFrame containing multiple recipes of 'best match order' from highest to lowest. Each row represents a recipe and includes these columns:
 - 'title': the name of the recipe
 - 'ingredients': a list or text description of ingredients
 - 'directions': the preparation steps
