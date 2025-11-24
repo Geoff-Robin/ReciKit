@@ -22,14 +22,14 @@ logger.setLevel(logging.DEBUG)
 load_dotenv()
 
 logger.info("Initializing MCP Server for RecSys")
-mcp = FastMCP("MCP Server for RecSys", host="0.0.0.0", port=3000)
+mcp = FastMCP("MCP Server for RecSys", stateless_http=True)
 
 
 @mcp.tool()
-async def get_recommendation_tool(match: str):
-    logger.info(f"Tool 'get_recommendation' invoked with match: '{match}'")
+async def get_recommendation_tool(likes: str, dislikes: str):
+    logger.info(f"Tool 'get_recommendation' invoked with likes: '{likes}', dislikes: '{dislikes}'")
     try:
-        results = await get_recommendation(match)
+        results = await get_recommendation(likes, dislikes)
         logger.info(f"Returning {len(results)} recommendations")
         return results
     except Exception as e:
