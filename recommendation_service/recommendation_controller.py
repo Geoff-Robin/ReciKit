@@ -18,8 +18,9 @@ async def get_recommendation(likes: str, dislikes: str):
     global a_mongo
     a_mongo = AsyncMongoClient(os.getenv("MONGO_DB_URI")) 
     qdrant_client = AsyncQdrantClient(url=os.getenv("QDRANT_URI"),api_key=os.getenv("QDRANT_API_KEY"))
+    model_name = "all-MiniLM-L6-v2" if os.getenv("ENV") == "production" else r"models/all-MiniLM-L6-v2"
     embedder = SentenceTransformer(
-        "./models/all-MiniLM-L6-v2", device="cpu", backend="onnx"
+        model_name, device="cpu", backend="onnx"
     )
 
     embedded_query_likes = embedder.encode(likes, normalize_embeddings=True)
