@@ -1,0 +1,1 @@
+from recommendation.app import mcp_app
