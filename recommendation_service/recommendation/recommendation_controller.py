@@ -1,9 +1,7 @@
 from async_lru import alru_cache
 from qdrant_client import AsyncQdrantClient
-from qdrant_client.http.models import ScoredPoint
 from sentence_transformers import SentenceTransformer
 import numpy as np
-from typing import List
 import os
 from pymongo import AsyncMongoClient
 from bson import ObjectId

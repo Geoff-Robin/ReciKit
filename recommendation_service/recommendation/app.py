@@ -2,9 +2,9 @@ from mcp.server.fastmcp import FastMCP
 import os
 from groq import AsyncGroq
 from dotenv import load_dotenv
-from models import WeeklyMealPlan
-from recommendation_controller import get_recommendation
-import prompts
+from recommendation.models import WeeklyMealPlan
+from recommendation.recommendation_controller import get_recommendation
+import recommendation.prompts as prompts
 import json
 import logging
 import sys
