@@ -9,9 +9,9 @@ dependencies = [
     "fastapi>=0.121.3",
     "fastmcp>=2.13.1",
     "groq>=0.36.0",
-    "optimum[onnxruntime]>=2.0.0",
     "pymongo>=4.15.4",
     "qdrant-client>=1.16.0",
+    "sentence-transformers[onnx]>=5.1.2",
 ]
 [pytest]
 asyncio_mode = "auto"
