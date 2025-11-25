@@ -22,10 +22,10 @@ logger.setLevel(logging.DEBUG)
 load_dotenv()
 
 logger.info("Initializing MCP Server for RecSys")
-mcp = FastMCP("MCP Server for RecSys", stateless_http=True)
+app = FastMCP("MCP Server for RecSys", stateless_http=True)
 
 
-@mcp.tool()
+@app.tool()
 async def get_recommendation_tool(likes: str, dislikes: str):
     logger.info(f"Tool 'get_recommendation' invoked with likes: '{likes}', dislikes: '{dislikes}'")
     try:
@@ -37,7 +37,7 @@ async def get_recommendation_tool(likes: str, dislikes: str):
         raise
 
 
-@mcp.tool()
+@app.tool()
 async def get_meal_plan_tool(likes: str, dislikes: str):
     logger.info(f"Tool 'get_meal_plan' invoked with parameters: match- '{likes}', mismatch- '{dislikes}'")
     try:

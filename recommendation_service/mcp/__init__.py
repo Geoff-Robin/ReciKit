@@ -1,0 +1,1 @@
+from mcp.app import mcp
