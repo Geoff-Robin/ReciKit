@@ -27,7 +27,9 @@ mcp_app = FastMCP("MCP Server for RecSys", stateless_http=True)
 
 @mcp_app.tool()
 async def get_recommendation_tool(likes: str, dislikes: str):
-    logger.info(f"Tool 'get_recommendation' invoked with likes: '{likes}', dislikes: '{dislikes}'")
+    logger.info(
+        f"Tool 'get_recommendation' invoked with likes: '{likes}', dislikes: '{dislikes}'"
+    )
     try:
         results = await get_recommendation(likes, dislikes)
         logger.info(f"Returning {len(results)} recommendations")
@@ -39,16 +41,20 @@ async def get_recommendation_tool(likes: str, dislikes: str):
 
 @mcp_app.tool()
 async def get_meal_plan_tool(likes: str, dislikes: str):
-    logger.info(f"Tool 'get_meal_plan' invoked with parameters: match- '{likes}', mismatch- '{dislikes}'")
+    logger.info(
+        f"Tool 'get_meal_plan' invoked with parameters: match- '{likes}', mismatch- '{dislikes}'"
+    )
     try:
         search_results = await get_recommendation(likes, dislikes)
         filtered_results = []
         for result in search_results:
-            filtered_results.append({
-                "title": result["title"],
-                "directions": result["directions"],
-                "ingredients": result["NER"]
-            })
+            filtered_results.append(
+                {
+                    "title": result["title"],
+                    "directions": result["directions"],
+                    "ingredients": result["NER"],
+                }
+            )
         client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
         response = await client.chat.completions.create(
             model="openai/gpt-oss-20b",

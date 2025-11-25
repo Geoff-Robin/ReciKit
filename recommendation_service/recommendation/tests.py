@@ -1,13 +1,14 @@
+from recommendation.recommendation_controller import get_recommendation
 import pytest
 import logging
 import os
 from dotenv import load_dotenv
-load_dotenv()
 
-from recommendation_controller import get_recommendation
+load_dotenv()
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 
 @pytest.fixture(scope="function", autouse=True)
 def env_vars(monkeypatch):
@@ -15,6 +16,7 @@ def env_vars(monkeypatch):
     monkeypatch.setenv("QDRANT_URI", os.getenv("QDRANT_URI"))
     monkeypatch.setenv("QDRANT_API_KEY", os.getenv("QDRANT_API_KEY"))
     return None
+
 
 @pytest.mark.asyncio
 async def test_get_recommendation_logging(caplog):
