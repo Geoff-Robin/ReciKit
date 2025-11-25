@@ -1,4 +1,4 @@
-from langchain.schema import AIMessage
+from langchain.messages import AIMessage
 
 def handle_menu(user_input, messages):
     if user_input.strip() == "1":
