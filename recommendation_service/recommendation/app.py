@@ -2,20 +2,12 @@ from mcp.server.fastmcp import FastMCP
 import os
 from async_lru import alru_cache
 from groq import AsyncGroq
-from dotenv import load_dotenv
 import json
 from fastapi.routing import APIRouter
 import logging
 import sys
 
 recommendation_route = APIRouter()
-
-@recommendation_route.get("/")
-async def get_recommendation_endpoint(likes: str, dislikes: str):
-	# Local import to avoid circular import at module import time
-	from recommendation.recommendation_controller import get_recommendation
-	return await get_recommendation(likes, dislikes)
-
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -26,11 +18,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-load_dotenv()
-
 logger.info("Initializing MCP Server for RecSys")
 mcp_app = FastMCP("MCP Server for RecSys", stateless_http=True)
 
+
+@recommendation_route.get("/mealplan/")
+async def get_meal_plan(likes: str, dislikes: str):
+    return await get_meal_plan_tool(likes, dislikes)
 
 @mcp_app.tool()
 async def get_recommendation_tool(likes: str, dislikes: str):

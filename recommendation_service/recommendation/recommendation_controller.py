@@ -1,10 +1,8 @@
 from async_lru import alru_cache
-from qdrant_client import AsyncQdrantClient
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import os
-from main import get_mongo_client
-from pymongo import AsyncMongoClient
+from main import get_mongo_client, get_qdrant_client
 from bson import ObjectId
 
 
@@ -14,17 +12,9 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 
 @alru_cache(maxsize=40)
 async def get_recommendation(likes: str, dislikes: str):
-    global qdrant_client
-    global a_mongo
-    a_mongo = await get_mongo_client()
-    qdrant_client = AsyncQdrantClient(
-        url=os.getenv("QDRANT_URI"), api_key=os.getenv("QDRANT_API_KEY")
-    )
-    model_name = (
-        "all-MiniLM-L6-v2"
-        if os.getenv("ENV") == "production"
-        else r"models/all-MiniLM-L6-v2"
-    )
+    mongo_client     = await get_mongo_client()
+    qdrant_client = await get_qdrant_client()
+    model_name = "all-MiniLM-L6-v2"
     embedder = SentenceTransformer(model_name, device="cpu", backend="onnx")
 
     embedded_query_likes = embedder.encode(likes, normalize_embeddings=True)
@@ -44,7 +34,7 @@ async def get_recommendation(likes: str, dislikes: str):
     search_results_likes = sorted(points, key=lambda x: x.score, reverse=True)
     for i in range(len(search_results_likes)):
         recipe_id = search_results_likes[i].payload["_id"]
-        recipe = await a_mongo.RecipeDB.Recipes.find_one({"_id": ObjectId(recipe_id)})
+        recipe = await mongo_client.RecipeDB.Recipes.find_one({"_id": ObjectId(recipe_id)})
         if recipe is None:
             continue
         search_results_likes[i].payload.update(
