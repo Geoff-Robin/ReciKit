@@ -22,10 +22,6 @@ logger.info("Initializing MCP Server for RecSys")
 mcp_app = FastMCP("MCP Server for RecSys", stateless_http=True)
 
 
-@recommendation_route.get("/mealplan/")
-async def get_meal_plan(likes: str, dislikes: str):
-    return await get_meal_plan_tool(likes, dislikes)
-
 @mcp_app.tool()
 async def get_recommendation_tool(likes: str, dislikes: str):
 	from recommendation.recommendation_controller import get_recommendation
@@ -44,7 +40,8 @@ async def get_recommendation_tool(likes: str, dislikes: str):
 # TODO: Gotta test this.
 @alru_cache(maxsize=5)
 @mcp_app.tool()
-async def get_meal_plan_tool(likes: str, dislikes: str):
+@recommendation_route.get("/mealplan/")
+async def get_meal_plan(likes: str, dislikes: str):
 	from recommendation.recommendation_controller import get_recommendation
 	from recommendation.models import WeeklyMealPlan
 	import recommendation.prompts as prompts
