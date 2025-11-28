@@ -26,36 +26,34 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(process.env.REACT_APP_API_URL + "/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          likes: formData.likes,
-          dislikes: formData.dislikes,
-          password: formData.password,
-        }),
-      });
-
-      const data = await res.json();
+      const res = await fetch(
+        process.env.REACT_APP_API_URL + "/api/auth/signup",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include", // <-- required for cookies
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            likes: formData.likes,
+            dislikes: formData.dislikes,
+            password: formData.password,
+          }),
+        }
+      );
 
       if (!res.ok) {
         setLoading(false);
         return;
       }
 
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-
       navigate("/preferences");
     } catch (_) {
-      /* ignore */
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleChange = (e) => {
     setFormData({
