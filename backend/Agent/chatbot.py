@@ -1,8 +1,10 @@
 import os
 from langchain_groq import ChatGroq
+from langchain.messages import SystemMessage
 from langchain.agents import create_agent
 from langgraph.graph import StateGraph, MessagesState
 from langchain_mcp_adapters.client import MultiServerMCPClient
+from Agent.prompts import SYSTEM_PROMPT
 from Agent.menu_handler import handle_menu
     
 
@@ -28,7 +30,7 @@ async def chatbot_node(state: MessagesState):
     if menu_reply:
         return {"messages": state["messages"] + [menu_reply]}
     
-    response = await agent.ainvoke(state["messages"])
+    response = await agent.ainvoke([SystemMessage(SYSTEM_PROMPT)]+state["messages"])
     return {"messages": state["messages"] + [response]}
 
 graph = StateGraph(MessagesState)
