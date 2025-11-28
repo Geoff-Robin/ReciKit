@@ -13,6 +13,8 @@ const SignUp = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    likes: "",
+    dislikes: "",
     password: "",
     confirmPassword: "",
   });
@@ -30,6 +32,8 @@ const SignUp = () => {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          likes: formData.likes,
+          dislikes: formData.dislikes,
           password: formData.password,
         }),
       });
@@ -74,47 +78,64 @@ const SignUp = () => {
         <div className="bg-card rounded-2xl shadow-xl p-8 border border-border/50 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-foreground">Full Name</Label>
+              <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="John Doe"
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="bg-background border-border focus:border-primary transition-colors"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="bg-background border-border focus:border-primary transition-colors"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground">Password</Label>
+              <Label htmlFor="likes">Food Likes</Label>
+              <Input
+                id="likes"
+                type="text"
+                placeholder="rice, beef, pasta"
+                value={formData.likes}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dislikes">Food Dislikes</Label>
+              <Input
+                id="dislikes"
+                type="text"
+                placeholder="fish, mushrooms"
+                value={formData.dislikes}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create a strong password"
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="bg-background border-border focus:border-primary transition-colors pr-10"
+                  className="pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -122,44 +143,27 @@ const SignUp = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-foreground">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Re-enter your password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="bg-background border-border focus:border-primary transition-colors pr-10"
+                  className="pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-start gap-2">
-              <input 
-                type="checkbox" 
-                required 
-                className="mt-1 rounded border-border text-primary focus:ring-primary" 
-              />
-              <span className="text-xs text-muted-foreground">
-                I agree to the Terms of Service and Privacy Policy
-              </span>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-lg hover:shadow-primary/50 transition-all duration-300 text-primary-foreground font-semibold"
-              size="lg"
-              disabled={loading}
-            >
+            <Button type="submit" disabled={loading}>
               {loading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
