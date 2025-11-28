@@ -1,5 +1,4 @@
 import os
-from langchain_groq import ChatGroq
 from langchain.messages import SystemMessage
 from langchain.agents import create_agent
 from langgraph.graph import StateGraph, MessagesState
