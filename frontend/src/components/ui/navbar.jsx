@@ -23,7 +23,7 @@ const Navbar = () => {
               </svg>
             </div>
             <span className="text-2xl font-bold text-white drop-shadow-md tracking-wide">
-              Ricket
+              ReciKit
             </span>
           </div>
 
