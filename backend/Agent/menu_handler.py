@@ -9,6 +9,6 @@ def handle_menu(user_input, messages):
         return AIMessage(content="Sure! Please tell me your preferences (e.g., vegetarian, high protein, etc.)")
     elif user_input.strip() == "4":
         return AIMessage(content="Let's manage your profile. Do you want to update dietary preferences or allergies?")
-    elif user_input.lower() in ["hi", "hello"]:
+    elif len(messages)==1:
         return AIMessage(content="Hi! What do you want to do today?\n1. Record inventory\n2. Analyze nutrition\n3. Get recipe & meal plan\n4. Manage profile")
     return None 

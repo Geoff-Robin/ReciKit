@@ -4,11 +4,6 @@ from langchain.agents import create_agent
 from langgraph.graph import StateGraph, MessagesState
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from menu_handler import handle_menu
-
-llm = ChatGroq(
-    groq_api_key=os.getenv("GROQ_API_KEY"),
-    model_name="llama-3.1-8b-instant"
-)
     
 
 async def chatbot_node(state: MessagesState):
@@ -21,7 +16,10 @@ async def chatbot_node(state: MessagesState):
             }
         }
     )
-    
+    llm = ChatGroq(
+        groq_api_key=os.getenv("GROQ_API_KEY"),
+        model_name="llama-3.1-8b-instant"
+    )
     tools = await client.get_tools()
     agent = create_agent(llm, tools)
     
@@ -36,4 +34,4 @@ async def chatbot_node(state: MessagesState):
 graph = StateGraph(MessagesState)
 graph.add_node("chatbot", chatbot_node)
 graph.set_entry_point("chatbot")
-chatbot_app = graph.compile()   
+chatbot_app = graph.compile()
