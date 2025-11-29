@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -23,15 +24,17 @@ const Navbar = () => {
               </svg>
             </div>
             <span className="text-2xl font-bold text-white drop-shadow-md tracking-wide">
-              Ricket
+              ReciKit
             </span>
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-4">
-            <button className="px-5 py-2 text-white border-2 border-white rounded-full font-medium hover:bg-white hover:text-green-700 transition duration-300 shadow-md">
-              Login
-            </button>
+            <Link to="/login">
+              <button className="px-5 py-2 text-white border-2 border-white rounded-full font-medium hover:bg-white hover:text-green-700 transition duration-300 shadow-md">
+                Login
+              </button>
+            </Link>
             <button className="px-5 py-2 bg-white text-green-700 rounded-full font-semibold hover:bg-green-100 transition duration-300 shadow-md">
               Sign Up
             </button>
