@@ -1,13 +1,8 @@
-import React from 'react';
-import LandingPage from './pages/landingpage';
-import './App.css';
+import React from "react";
+import MealPlanApp from "./pages/MealPlan"; // adjust path if needed
 
 function App() {
-  return (
-    <div className="App">
-      <LandingPage />
-    </div>
-  );
+  return <MealPlanApp />;
 }
 
 export default App;
