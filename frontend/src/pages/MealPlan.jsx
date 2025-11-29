@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { LogOut } from 'lucide-react';
 import MealCard from '../components/ui/MealCard';
-import DayNavigation from '../components/ui/DayNavigation';  // ✅ FIXED
-import DayIndicator from '../components/ui/DayIndicator';    // ✅ FIXED
+import DayNavigation from '../components/ui/DayNavigation';
+import DayIndicator from '../components/ui/DayIndicator';
 import { sampleMealPlan } from '../components/ui/sampledata';
 
 const MealPlanApp = () => {
@@ -19,12 +20,31 @@ const MealPlanApp = () => {
     setCurrentDay((prev) => (prev - 1 + days.length) % days.length);
   };
 
+  const handleLogout = () => {
+    // Add your logout logic here
+    console.log('Logging out...');
+    // Example: Clear token, redirect to login, etc.
+    // localStorage.removeItem('token');
+    // navigate('/login');
+  };
+
   const currentDayName = days[currentDay];
   const currentDayPlan = weeklyMealPlan[currentDayName];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-lime-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
+        {/* Logout Button - Top Right */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 rounded-lg shadow-md hover:shadow-lg hover:bg-red-50 transition-all font-semibold"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
