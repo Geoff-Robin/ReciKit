@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from dotenv import load_dotenv
 from groq import AsyncGroq
 from Agent.chatbot import chatbot
 from Agent.models import Message
@@ -6,6 +7,7 @@ from Routes.auth_routes import current_user
 import requests
 import os
 
+load_dotenv()
 routes = APIRouter()
 
 @routes.post("/chats")
@@ -47,7 +49,7 @@ async def get_recommendations(user: str = Depends(current_user)):
         likes = u.get("likes", "")
         dislikes = u.get("dislikes", "")
         result = requests.post(
-            os.getenv("RECOMMENDATION_SERVICE_URL"),
+            os.getenv("RECOMMENDATION_SERVICE_URL")+"/api/recommendations",
             json={"likes": likes, "dislikes": dislikes}
         )
         return result.json()

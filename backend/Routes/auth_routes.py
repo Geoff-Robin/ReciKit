@@ -1,13 +1,15 @@
-from fastapi import APIRouter, Form, Depends, HTTPException, Request
+from fastapi import APIRouter, Form, HTTPException, Request
+from dotenv import load_dotenv
 from fastapi.responses import JSONResponse
 from itsdangerous import URLSafeSerializer
 from passlib.context import CryptContext
 import os
 
+load_dotenv()
 auth = APIRouter()
 
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
-serializer = URLSafeSerializer(os.getenv("SECRET_KEY"))
+serializer = URLSafeSerializer(secret_key=os.getenv("SECRET_KEY"))
 
 
 @auth.post("/signup")
@@ -50,11 +52,6 @@ def current_user(request: Request):
         return d["username"]
     except Exception:
         raise HTTPException(status_code=401, detail="bad session")
-
-
-@auth.get("/dashboard")
-async def dashboard(user: str = Depends(current_user)):
-    return {"message": user}
 
 
 @auth.post("/logout")

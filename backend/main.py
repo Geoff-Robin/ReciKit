@@ -1,8 +1,8 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.logger import logger
 import contextlib
 from pymongo import AsyncMongoClient
-from dotenv import load_dotenv
 from Routes.auth_routes import auth
 from Routes.routes import routes
 import os
@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up...")
     yield
     logger.info("Shutting down...")
-    mongo_client.close()
+    await mongo_client.close()
 
 async def get_mongo_client() -> AsyncMongoClient:
     global mongo_client
@@ -25,6 +25,8 @@ async def get_mongo_client() -> AsyncMongoClient:
 
 app = FastAPI(lifespan=lifespan)
 
+from Routes.auth_routes import auth
+from Routes.routes import routes
 app.include_router(auth, prefix="/api/auth")
 app.include_router(routes, prefix="/api")
 

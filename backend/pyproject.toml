@@ -13,6 +13,7 @@ dependencies = [
     "passlib>=1.7.4",
     "pymongo>=4.15.4",
     "python-dotenv>=1.2.1",
+    "python-multipart>=0.0.20",
     "uvicorn>=0.38.0",
 ]
 
