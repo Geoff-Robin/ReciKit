@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Form, HTTPException, Request
 from dotenv import load_dotenv
+from pymongo import AsyncMongoClient
 from fastapi.responses import JSONResponse
 from itsdangerous import URLSafeSerializer
 from passlib.context import CryptContext
 import os
+import hashlib, base64
 
 load_dotenv()
 auth = APIRouter()
@@ -13,15 +15,19 @@ serializer = URLSafeSerializer(secret_key=os.getenv("SECRET_KEY"))
 
 
 @auth.post("/signup")
-async def signup(username: str = Form(), password: str = Form(), likes: str = Form(), dislikes: str = Form()):
-    global mongo_client
+async def signup(username: str = Form(), password: str = Form(), likes: str = Form(), dislikes: str = Form(), inventory: str = Form()):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
     db = mongo_client["RecipeDB"]
     users = db.Users
     if await users.find_one({"username": username}):
         raise HTTPException(status_code=400, detail="User exists")
 
-    hashed = pwd.hash(password)
-    await users.insert_one({"username": username, "password": hashed, "likes": likes, "dislikes": dislikes})
+    pw_bytes = password.encode("utf-8")
+    digest = hashlib.sha256(pw_bytes).digest()
+    safe = base64.b64encode(digest)
+    hashed = pwd.hash(safe)
+    await users.insert_one({"username": username, "password": hashed, "likes": likes, "dislikes": dislikes, "inventory": inventory})
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     r.set_cookie("session", token, httponly=True, samesite="strict")
@@ -30,11 +36,15 @@ async def signup(username: str = Form(), password: str = Form(), likes: str = Fo
 
 @auth.post("/login")
 async def login(username: str = Form(), password: str = Form()):
-    global mongo_client
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
     db = mongo_client["RecipeDB"]
     users = db.Users
     u = await users.find_one({"username": username})
-    if not u or not pwd.verify(password, u["password"]):
+    pw_bytes = password.encode("utf-8")
+    digest = hashlib.sha256(pw_bytes).digest()
+    safe = base64.b64encode(digest)
+    if not u or not pwd.verify(safe, u["password"]):
         raise HTTPException(status_code=400, detail="invalid creds")
 
     token = serializer.dumps({"username": username})

@@ -13,7 +13,8 @@ routes = APIRouter()
 @routes.post("/chats")
 async def chat_endpoint(state: dict, user: str = Depends(current_user)):
     try:
-        global mongo_client
+        from main import get_mongo_client
+        mongo_client = await get_mongo_client()
         reply = None
         if len(state.get("messages", [])) >= 10:
             groq_client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
@@ -40,7 +41,8 @@ async def chat_endpoint(state: dict, user: str = Depends(current_user)):
 @routes.get("/recommendations")
 async def get_recommendations(user: str = Depends(current_user)):
     try:
-        global mongo_client
+        from main import get_mongo_client
+        mongo_client = await get_mongo_client()
         db = mongo_client["RecipeDB"]
         users = db.Users
         u = await users.find_one({"username": user})
@@ -48,9 +50,12 @@ async def get_recommendations(user: str = Depends(current_user)):
             raise HTTPException(status_code=404, detail="User not found")
         likes = u.get("likes", "")
         dislikes = u.get("dislikes", "")
-        result = requests.post(
-            os.getenv("RECOMMENDATION_SERVICE_URL")+"/api/recommendations",
-            json={"likes": likes, "dislikes": dislikes}
+        inventory = u.get("inventory", "")
+        result = requests.get(
+            os.getenv("RECOMMENDATION_SERVICE_URL")+"/api/mealplan/",params={
+                "likes": likes+"\n"+inventory,
+                "dislikes": dislikes
+            }
         )
         return result.json()
 

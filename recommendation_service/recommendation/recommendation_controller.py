@@ -5,7 +5,7 @@ from main import get_mongo_client, get_qdrant_client
 from bson import ObjectId
 
 # load once
-embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cpu")
+embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cpu", backend="onnx")
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
