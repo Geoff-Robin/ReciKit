@@ -3,6 +3,8 @@ from fastapi.logger import logger
 import contextlib
 from pymongo import AsyncMongoClient
 from dotenv import load_dotenv
+from Routes.auth_routes import auth
+from Routes.routes import routes
 import os
 
 load_dotenv()
@@ -22,6 +24,9 @@ async def get_mongo_client() -> AsyncMongoClient:
     return mongo_client
 
 app = FastAPI(lifespan=lifespan)
+
+app.include_router(auth, prefix="/api/auth")
+app.include_router(routes, prefix="/api")
 
 PORT = os.getenv("PORT", "3000")
 
