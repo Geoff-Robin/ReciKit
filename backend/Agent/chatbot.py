@@ -5,6 +5,9 @@ from bson import ObjectId
 from Agent.prompts import SYSTEM_PROMPT
 from Agent.menu_handler import handle_menu
 from Agent.models import Conversation, Message
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def chatbot_node(state: Conversation):
@@ -31,7 +34,7 @@ async def chatbot_node(state: Conversation):
             {
                 "type" : "mcp",
                 "server_label" : "ReciKit-Tool-Server",
-                "server_url" : os.getenv("RECOMMENDATION_SERVICE_URL")
+                "server_url" : os.getenv("RECOMMENDATION_SERVICE_URL")+"/mcp/tools",
             }
         ]
     )

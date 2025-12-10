@@ -7,11 +7,11 @@ requires-python = ">=3.12"
 dependencies = [
     "async-lru>=2.0.5",
     "fastapi>=0.121.3",
+    "fastembed>=0.7.4",
     "fastmcp>=2.13.1",
     "groq>=0.36.0",
     "pymongo>=4.15.4",
     "qdrant-client>=1.16.0",
-    "sentence-transformers[onnx]>=5.1.2",
 ]
 [pytest]
 asyncio_mode = "auto"

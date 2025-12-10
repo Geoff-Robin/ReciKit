@@ -1,9 +1,11 @@
 from async_lru import alru_cache
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 import numpy as np
-import os
 from main import get_mongo_client, get_qdrant_client
 from bson import ObjectId
+
+# load once
+embedder = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -12,32 +14,36 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 
 @alru_cache(maxsize=40)
 async def get_recommendation(likes: str, dislikes: str):
-    mongo_client     = await get_mongo_client()
+    mongo_client = await get_mongo_client()
     qdrant_client = await get_qdrant_client()
-    model_name = "all-MiniLM-L6-v2"
-    embedder = SentenceTransformer(model_name, device="cpu", backend="onnx")
 
-    embedded_query_likes = embedder.encode(likes, normalize_embeddings=True)
-    embedded_query_dislikes = embedder.encode(dislikes, normalize_embeddings=True)
+    like_vec = next(embedder.embed(likes))
+    dislike_vec = next(embedder.embed(dislikes))
+
     result = await qdrant_client.query_points(
         collection_name="Recipes",
-        query=embedded_query_likes,
+        query=like_vec,
         limit=30,
         with_vectors=True,
     )
+
     points = result.points
+
     for point in points:
         point.score -= cosine_similarity(
-            embedded_query_dislikes, np.array(point.vector)
+            dislike_vec,
+            np.array(point.vector)
         )
 
-    search_results_likes = sorted(points, key=lambda x: x.score, reverse=True)
-    for i in range(len(search_results_likes)):
-        recipe_id = search_results_likes[i].payload["_id"]
-        recipe = await mongo_client.RecipeDB.Recipes.find_one({"_id": ObjectId(recipe_id)})
-        if recipe is None:
+    points.sort(key=lambda x: x.score, reverse=True)
+
+    out = []
+    for p in points:
+        rid = p.payload["_id"]
+        recipe = await mongo_client.RecipeDB.Recipes.find_one({"_id": ObjectId(rid)})
+        if not recipe:
             continue
-        search_results_likes[i].payload.update(
+        p.payload.update(
             {
                 "title": recipe.get("title"),
                 "ingredients": recipe.get("ingredients"),
@@ -45,5 +51,6 @@ async def get_recommendation(likes: str, dislikes: str):
                 "NER": recipe.get("NER"),
             }
         )
-    recommendations = [result.payload for result in search_results_likes]
-    return recommendations
+        out.append(p.payload)
+
+    return out
