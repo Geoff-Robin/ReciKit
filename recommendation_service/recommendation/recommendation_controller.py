@@ -1,10 +1,11 @@
 from async_lru import alru_cache
+from fastembed import TextEmbedding
 import numpy as np
 from main import get_mongo_client, get_qdrant_client
 from bson import ObjectId
 
 # load once
-embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cpu", backend="onnx")
+embedder = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
 
 
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -16,8 +17,8 @@ async def get_recommendation(likes: str, dislikes: str):
     mongo_client = await get_mongo_client()
     qdrant_client = await get_qdrant_client()
 
-    like_vec = embedder.encode(likes, normalize_embeddings=True)
-    dislike_vec = embedder.encode(dislikes, normalize_embeddings=True)
+    like_vec = next(embedder.embed(likes))
+    dislike_vec = next(embedder.embed(dislikes))
 
     result = await qdrant_client.query_points(
         collection_name="Recipes",
