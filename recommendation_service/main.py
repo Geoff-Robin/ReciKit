@@ -30,7 +30,7 @@ async def get_qdrant_client() -> AsyncQdrantClient:
 
 fast_api_app = FastAPI(lifespan=lifespan)
 
-@fast_api_app.post("/health")
+@fast_api_app.get("/health")
 async def health_check():
     return {"status": "ok"}
 
