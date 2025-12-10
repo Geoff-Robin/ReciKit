@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { LogOut } from 'lucide-react';
+import { LogOut, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import MealCard from '../components/ui/MealCard';
 import DayNavigation from '../components/ui/DayNavigation';
 import DayIndicator from '../components/ui/DayIndicator';
@@ -7,6 +8,7 @@ import { sampleMealPlan } from '../components/ui/sampledata';
 
 const MealPlanApp = () => {
   const [currentDay, setCurrentDay] = useState(0);
+  const navigate = useNavigate(); 
   
   const weeklyMealPlan = sampleMealPlan; 
   const days = Object.keys(weeklyMealPlan);
@@ -21,11 +23,12 @@ const MealPlanApp = () => {
   };
 
   const handleLogout = () => {
-    // Add your logout logic here
     console.log('Logging out...');
-    // Example: Clear token, redirect to login, etc.
-    // localStorage.removeItem('token');
-    // navigate('/login');
+  
+  };
+
+  const handleChatbotClick = () => {
+    navigate('/chatbot'); 
   };
 
   const currentDayName = days[currentDay];
@@ -83,6 +86,15 @@ const MealPlanApp = () => {
         <div className="mt-8 text-center text-gray-500 text-sm">
           <p>Use arrow buttons or dots to navigate between days</p>
         </div>
+
+        {/* Chatbot Floating Button */}
+        <button
+          onClick={handleChatbotClick}
+          className="fixed bottom-6 right-6 bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50"
+          aria-label="Open Chatbot"
+        >
+          <MessageCircle className="w-6 h-6" />
+        </button>
       </div>
     </div>
   );
