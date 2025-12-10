@@ -1,0 +1,58 @@
+datasets/
+*.ipynb
+scripts/
+models/
+# VCS
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+wheels/
+pip-wheel-metadata/
+*.manifest
+
+# Virtual envs
+env/
+venv/
+.venv/
+*.venv/
+
+# Tests
+tests/
+test/
+*.test.*
+*.spec.*
+
+# Logs and temp
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Config not needed in image
+*.env
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

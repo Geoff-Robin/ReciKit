@@ -2,12 +2,11 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import FOG from "vanta/dist/vanta.fog.min";
-
 import ImageCarousel from "../components/ui/image-carousel";
 import Navbar from "../components/ui/navbar";
 import FeatureCard from "../components/ui/FeatureCard";
 import LifestyleSection from "../components/ui/lifestyle";
-import Footer from "../components/ui/footer"; // ✅ Imported Footer
+import Footer from "../components/ui/footer";
 
 const LandingPage = () => {
   const vantaRef = useRef(null);
@@ -21,8 +20,8 @@ const LandingPage = () => {
         mouseControls: true,
         touchControls: true,
         gyroControls: false,
-        minHeight: window.innerHeight,
-        minWidth: window.innerWidth,
+        minHeight: 200,
+        minWidth: 200,
         highlightColor: 0xa8e6a3, // matcha cream green
         midtoneColor: 0x7fcf7a, // vibrant matcha midtone
         lowlightColor: 0x4da356, // deep leafy green
@@ -38,9 +37,9 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="relative w-screen min-h-screen overflow-hidden text-gray-800">
+    <div className="relative w-full min-h-screen overflow-x-hidden text-gray-800 m-0 p-0">
       {/* Vanta background */}
-      <div ref={vantaRef} className="absolute inset-0 -z-10 w-full h-full" />
+      <div ref={vantaRef} className="fixed inset-0 -z-10 w-screen h-screen" style={{ margin: 0, padding: 0 }} />
 
       {/* Soft gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-green-100/40 via-green-200/30 to-green-300/50 pointer-events-none -z-5" />
@@ -51,7 +50,7 @@ const LandingPage = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="relative z-20 flex flex-col items-center justify-center w-full min-h-screen px-6 text-center space-y-10">
+      <div className="relative z-20 flex flex-col items-center justify-center w-full min-h-screen px-4 sm:px-6 text-center space-y-10">
         <div className="max-w-4xl mt-28 sm:mt-36">
           <h1
             className="text-5xl md:text-6xl font-extrabold 
@@ -69,12 +68,12 @@ const LandingPage = () => {
         </div>
 
         {/* Carousel */}
-        <div className="w-full max-w-5xl mb-8 sm:mb-12">
+        <div className="w-full max-w-5xl mb-8 sm:mb-12 px-2">
           <ImageCarousel />
         </div>
 
         {/* Feature Cards */}
-        <div className="w-full max-w-6xl px-4 mb-24">
+        <div className="w-full max-w-6xl px-2 sm:px-4 mb-24">
           <FeatureCard />
         </div>
       </div>
@@ -86,7 +85,7 @@ const LandingPage = () => {
 
       {/* Footer Section */}
       <div className="relative z-10">
-        <Footer /> {/* ✅ Cleanly added here */}
+        <Footer />
       </div>
 
       {/* Bottom soft fade */}
