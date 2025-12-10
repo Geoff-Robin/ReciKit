@@ -29,6 +29,11 @@ async def get_qdrant_client() -> AsyncQdrantClient:
     return qdrant_client
 
 fast_api_app = FastAPI(lifespan=lifespan)
+
+@fast_api_app.post("/health")
+async def health_check():
+    return {"status": "ok"}
+
 fast_api_app.mount("/mcp", mcp_app.streamable_http_app())
 fast_api_app.include_router(recommendation_route, prefix="/api")
 PORT = os.getenv("PORT", "3000")
