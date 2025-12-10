@@ -1,82 +1,39 @@
-from mcp.server.fastmcp import FastMCP
-import os
-from groq import AsyncGroq
+from fastapi import FastAPI
+from fastapi.logger import logger
+import contextlib
+from recommendation import mcp_app, recommendation_route
+from pymongo import AsyncMongoClient
+from qdrant_client import AsyncQdrantClient
 from dotenv import load_dotenv
-from models import WeeklyMealPlan
-from recommendation_controller import get_recommendation
-import prompts
-import json
-import logging
-
-import sys
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("mcp_server.log")],
-)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
+import os
 
 load_dotenv()
 
-logger.info("Initializing MCP Server for RecSys")
-mcp = FastMCP("MCP Server for RecSys")
+qdrant_client = AsyncQdrantClient(url = os.getenv("QDRANT_URI"), api_key=os.getenv("QDRANT_API_KEY"))
+mongo_client = AsyncMongoClient(os.getenv("MONGO_DB_URI"))
 
+@contextlib.asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with contextlib.AsyncExitStack() as stack:
+        await stack.enter_async_context(mcp_app.session_manager.run())
+        yield
+        await mongo_client.close()
+        await qdrant_client.close()
+        
+async def get_mongo_client() -> AsyncMongoClient:
+    global mongo_client
+    return mongo_client
 
-@mcp.tool()
-async def get_recommendation_tool(match: str):
-    logger.info(f"Tool 'get_recommendation' invoked with match: '{match}'")
-    try:
-        results = await get_recommendation(match)
-        logger.info(f"Returning {len(results)} recommendations")
-        return results
-    except Exception as e:
-        logger.error(f"Error in get_recommendation tool: {e}", exc_info=True)
-        raise
+async def get_qdrant_client() -> AsyncQdrantClient:
+    global qdrant_client
+    return qdrant_client
 
-
-@mcp.tool()
-async def get_meal_plan_tool(match: str, mismatch: str):
-    logger.info(f"Tool 'get_meal_plan' invoked with match: '{match}'")
-    try:
-        search_results = await get_recommendation(match)
-        client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
-        response = await client.chat.completions.create(
-            model="openai/gpt-oss-20b",
-            messages=[
-                {
-                    "role": "system",
-                    "content": prompts.SYSTEM_PROMPT,
-                },
-                {
-                    "role": "user",
-                    "content": f"Recipes DataFrame:\n{search_results.to_string(index=False)}\n\n\nDisclude Recipes with Ingredients: {mismatch}",
-                },
-            ],
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "weekly_meal_plan",
-                    "schema": WeeklyMealPlan.model_json_schema(),
-                },
-            },
-        )
-        raw_content = response.choices[0].message.content
-        meal_plan_json = json.loads(raw_content)
-        return meal_plan_json
-    except Exception as e:
-        logger.error(f"Error in get_meal_plan tool: {e}", exc_info=True)
-        raise
-
-
-async def main():
-    await mcp.run_streamable_http_async()
-
+fast_api_app = FastAPI(lifespan=lifespan)
+fast_api_app.mount("/mcp", mcp_app.streamable_http_app(), name="tools")
+fast_api_app.include_router(recommendation_route, prefix="/api")
+PORT = os.getenv("PORT", "3000")
 
 if __name__ == "__main__":
-    import asyncio
+    import uvicorn
 
-    asyncio.run(main())
+    uvicorn.run(fast_api_app, host="0.0.0.0", port=int(PORT))

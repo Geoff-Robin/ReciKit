@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MealPlanApp from "./pages/MealPlan";
-import Chatbot from "./pages/Chatbot";   // now correct
+import Chatbot from "./pages/chatbot";   // now correct
 
 function App() {
   return (
