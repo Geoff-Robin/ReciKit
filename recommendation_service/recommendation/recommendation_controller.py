@@ -1,5 +1,4 @@
 from async_lru import alru_cache
-from sentence_transformers import SentenceTransformer
 import numpy as np
 from main import get_mongo_client, get_qdrant_client
 from bson import ObjectId
