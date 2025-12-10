@@ -41,4 +41,4 @@ PORT = os.getenv("PORT", "8000")
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(fast_api_app, host="121.0.0.1", port=int(PORT))
+    uvicorn.run(fast_api_app, host="0.0.0.0", port=int(PORT))
