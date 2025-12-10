@@ -5,7 +5,7 @@ import { MessageInput } from "../components/ui/MessageInput";
 import { MessageList } from "../components/ui/MessageList";
 import { PromptSuggestions } from "../components/ui/PromptSuggestions";
 
-export function MessageInputDemo() {
+export default function Chatbot() {
   const [value, setValue] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -24,7 +24,6 @@ export function MessageInputDemo() {
     timeout.current = id;
   };
 
-  
   useEffect(() => {
     if (messageListRef.current) {
       messageListRef.current.scrollTo({
@@ -104,11 +103,7 @@ export function MessageInputDemo() {
         >
           <MessageList messages={messages} isTyping={isGenerating} />
         </div>
-        <ChatForm
-          className="w-full"
-          isPending={false}
-          handleSubmit={handleSubmit}
-        >
+        <ChatForm className="w-full" isPending={false} handleSubmit={handleSubmit}>
           {({ files, setFiles }) => (
             <MessageInput
               value={value}

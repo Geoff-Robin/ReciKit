@@ -18,9 +18,7 @@
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.6",
-    "tailwind-merge": "^3.4.0",
-    "tailwindcss-animate": "^1.0.7",
+    "react-router-dom": "^7.10.1",
     "three": "^0.181.1",
     "vanta": "^0.5.24"
   },
