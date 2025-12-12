@@ -25,8 +25,6 @@ async def get_mongo_client() -> AsyncMongoClient:
 
 app = FastAPI(lifespan=lifespan)
 
-from Routes.auth_routes import auth
-from Routes.routes import routes
 app.include_router(auth, prefix="/api/auth")
 app.include_router(routes, prefix="/api")
 
@@ -35,4 +33,4 @@ PORT = os.getenv("PORT", "3000")
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=int(PORT))
+    uvicorn.run(app, host="0.0.0.0", port=int(PORT))
