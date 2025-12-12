@@ -41,16 +41,16 @@ async def get_recommendation_tool(likes: str, dislikes: str):
 @alru_cache(maxsize=5)
 @mcp_app.tool()
 @recommendation_route.get("/mealplan/")
-async def get_meal_plan(likes: str, dislikes: str):
+async def get_meal_plan(inventory: str, likes: str, allergies: str):
 	from recommendation.recommendation_controller import get_recommendation
 	from recommendation.models import WeeklyMealPlan
 	import recommendation.prompts as prompts
 
 	logger.info(
-		f"Tool 'get_meal_plan' invoked with parameters: match- '{likes}', mismatch- '{dislikes}'"
+		f"Tool 'get_meal_plan' invoked with parameters: inventory- '{inventory}', likes- '{likes}', allergies- '{allergies}'"
 	)
 	try:
-		search_results = await get_recommendation(likes, dislikes)
+		search_results = await get_recommendation(inventory, likes, allergies)
 		filtered_results = []
 		for result in search_results:
 			filtered_results.append(
@@ -70,7 +70,7 @@ async def get_meal_plan(likes: str, dislikes: str):
 				},
 				{
 					"role": "user",
-					"content": f"Recipes DataFrame:\n{str(filtered_results)}\n\n\nDisclude Recipes with Ingredients: {dislikes}",
+					"content": f"Recipes DataFrame:\n{str(filtered_results)}\n\n\nDisclude Recipes with Ingredients: {allergies}",
 				},
 			],
 			response_format={

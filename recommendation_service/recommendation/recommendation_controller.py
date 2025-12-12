@@ -13,29 +13,32 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 
 
 @alru_cache(maxsize=40)
-async def get_recommendation(likes: str, dislikes: str):
+async def get_recommendation(inventory: str, likes: str, allergies: str):
     mongo_client = await get_mongo_client()
     qdrant_client = await get_qdrant_client()
 
+    inventory_vec = next(embedder.embed(inventory))
     like_vec = next(embedder.embed(likes))
-    dislike_vec = next(embedder.embed(dislikes))
+    allergies_vec = next(embedder.embed(allergies))
 
     result = await qdrant_client.query_points(
         collection_name="Recipes",
-        query=like_vec,
+        query=inventory_vec,
         limit=30,
         with_vectors=True,
     )
 
     points = result.points
-
     for point in points:
-        point.score -= cosine_similarity(
-            dislike_vec,
+        point.score = (point.score + cosine_similarity(like_vec, np.array(point.vector))) / 2
+    points.sort(key=lambda x: x.score, reverse=True)
+    
+    for point in points:
+        point.score = cosine_similarity(
+            allergies_vec,
             np.array(point.vector)
         )
-
-    points.sort(key=lambda x: x.score, reverse=True)
+    points.sort(key=lambda x: x.score)
 
     out = []
     for p in points:
