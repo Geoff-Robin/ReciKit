@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from '@/pages/landingpage'
 import Login from '@/pages/login'
 import SignUp from '@/pages/signup.jsx'
-import MealPlanApp from "./pages/MealPlan";
-import Chatbot from "./pages/Chatbot";   // now correct
+import MealPlanApp from "@/pages/MealPlan";
+import Chatbot from "@/pages/Chatbot";
 
 function App() {
   return (
