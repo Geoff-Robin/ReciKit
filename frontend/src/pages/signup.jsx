@@ -59,7 +59,7 @@ const Signup = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: formData.name,
+          username: formData.name,
           email: formData.email,
           password: formData.password,
           likes: formData.likes,
@@ -84,7 +84,7 @@ const Signup = () => {
         description: "Account created successfully",
       });
 
-      navigate("/preferences");
+      navigate("/home");
     } catch (error) {
       toast({
         title: "Error",
