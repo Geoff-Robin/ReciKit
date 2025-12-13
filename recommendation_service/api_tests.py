@@ -19,7 +19,7 @@ def assert_day_plan(dp):
 
 def test_weekly_meal_plan():
     url = f"{BASE_URL}{ENDPOINT}"
-    r = requests.get(url, params={"likes": "chicken", "dislikes": "tomato"})
+    r = requests.get(url, params={"inventory": "chicken onion tomato garlic spring onions rice noodles green beans rice flour", "likes": "chicken", "allergies": "tomato"})
     assert r.status_code == 200
     data = r.json()
     assert isinstance(data, dict)
