@@ -4,7 +4,7 @@ import LandingPage from '@/pages/landingpage'
 import Login from '@/pages/login'
 import SignUp from '@/pages/signup.jsx'
 import MealPlanApp from "@/pages/MealPlan";
-import Chatbot from "@/pages/Chatbot";
+import Chatbot from "@/pages/chatbot";
 
 function App() {
   return (
