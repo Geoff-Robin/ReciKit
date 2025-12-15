@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from typing import List
 
 class MealItem(BaseModel):
     title: str
@@ -9,9 +9,9 @@ class MealItem(BaseModel):
 
 
 class DayPlan(BaseModel):
-    Breakfast: MealItem
-    Lunch: MealItem
-    Dinner: MealItem
+    Breakfast: List[MealItem]
+    Lunch: List[MealItem]
+    Dinner: List[MealItem]
 
 
 class WeeklyMealPlan(BaseModel):
@@ -22,3 +22,4 @@ class WeeklyMealPlan(BaseModel):
     Friday: DayPlan
     Saturday: DayPlan
     Sunday: DayPlan
+    InventoryNeeded: List[str]

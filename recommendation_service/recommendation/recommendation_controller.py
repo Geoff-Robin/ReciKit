@@ -24,7 +24,7 @@ async def get_recommendation(inventory: str, likes: str, allergies: str):
     result = await qdrant_client.query_points(
         collection_name="Recipes",
         query=inventory_vec,
-        limit=30,
+        limit=40,
         with_vectors=True,
     )
 
