@@ -61,4 +61,6 @@ async def get_recommendations(user: str = Depends(current_user)):
         return result.json()
 
     except Exception as e:
+        if isinstance(e, requests.exceptions.RequestException):
+            raise HTTPException(status_code=result.status_code, detail= result.text)
         raise HTTPException(status_code=500, detail=str(e))
