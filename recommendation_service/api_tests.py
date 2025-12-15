@@ -14,14 +14,18 @@ def assert_meal_item(mi):
 def assert_day_plan(dp):
     assert isinstance(dp, dict)
     for meal in ("Breakfast", "Lunch", "Dinner"):
+        # changed: each meal is now a list of MealItem
         assert meal in dp
-        assert_meal_item(dp[meal])
+        assert isinstance(dp[meal], list)
+        for mi in dp[meal]:
+            assert_meal_item(mi)
 
 def test_weekly_meal_plan():
     url = f"{BASE_URL}{ENDPOINT}"
     r = requests.get(url, params={"inventory": "chicken onion tomato garlic spring onions rice noodles green beans rice flour", "likes": "chicken", "allergies": "tomato"})
     assert r.status_code == 200
     data = r.json()
+    print(data)
     assert isinstance(data, dict)
 
 
@@ -36,5 +40,11 @@ def test_weekly_meal_plan():
     ):
         assert day in data
         assert_day_plan(data[day])
+
+    # new: validate InventoryNeeded at root
+    assert "InventoryNeeded" in data
+    assert isinstance(data["InventoryNeeded"], list)
+    for item in data["InventoryNeeded"]:
+        assert isinstance(item, str)
 
 
