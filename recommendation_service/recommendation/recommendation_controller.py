@@ -4,7 +4,7 @@ import numpy as np
 from main import get_mongo_client, get_qdrant_client
 from bson import ObjectId
 
-# load once
+
 embedder = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
 
 
@@ -12,7 +12,6 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 
-@alru_cache(maxsize=40)
 async def get_recommendation(inventory: str, likes: str, allergies: str):
     mongo_client = await get_mongo_client()
     qdrant_client = await get_qdrant_client()

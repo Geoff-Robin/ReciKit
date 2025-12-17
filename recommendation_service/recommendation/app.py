@@ -39,8 +39,6 @@ async def get_recommendation_tool(likes: str, dislikes: str):
 
 # TODO: Gotta test this.
 @alru_cache(maxsize=5)
-@mcp_app.tool()
-@recommendation_route.get("/mealplan/")
 async def get_meal_plan(inventory: str, likes: str, allergies: str):
 	from recommendation.recommendation_controller import get_recommendation
 	from recommendation.models import WeeklyMealPlan
@@ -87,3 +85,8 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 	except Exception as e:
 		logger.error(f"Error in get_meal_plan tool: {e}", exc_info=True)
 		raise
+
+@mcp_app.tool()
+@recommendation_route.get("/mealplan/")
+async def get_meal_plan_endpoint(inventory: str, likes: str, allergies: str):
+    return await get_meal_plan(inventory,likes,allergies)
