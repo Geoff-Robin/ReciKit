@@ -1,10 +1,15 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Literal
+
+class Ingredient(BaseModel):
+    name: str
+    quantity: int
+    metric: Literal['gram', 'kilogram', 'milimeter', 'liter']
 
 class MealItem(BaseModel):
     title: str
     directions: str
-    ingredients: str
+    ingredients: List[Ingredient]
     reason: str
 
 
@@ -22,4 +27,4 @@ class WeeklyMealPlan(BaseModel):
     Friday: DayPlan
     Saturday: DayPlan
     Sunday: DayPlan
-    InventoryNeeded: List[str]
+    InventoryNeeded: List[Ingredient]

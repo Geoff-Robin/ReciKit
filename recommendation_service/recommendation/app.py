@@ -62,7 +62,7 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 			)
 		groq_client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
 		response = await groq_client.chat.completions.create(
-			model="openai/gpt-oss-20b",
+			model=os.getenv("MODEL_NAME"),
 			messages=[
 				{
 					"role": "system",
