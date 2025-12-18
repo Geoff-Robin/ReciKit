@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { LogOut, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import MealCard from '../components/ui/MealCard';
-import DayNavigation from '../components/ui/DayNavigation';
-import DayIndicator from '../components/ui/DayIndicator';
-import { sampleMealPlan } from '../components/ui/sampledata';
+import MealCard from '@/components/ui/MealCard';
+import DayNavigation from '@/components/ui/DayNavigation';
+import DayIndicator from '@/components/ui/DayIndicator';
+import { sampleMealPlan } from '@/components/ui/sampledata';
 
 const MealPlanApp = () => {
   const [currentDay, setCurrentDay] = useState(0);
