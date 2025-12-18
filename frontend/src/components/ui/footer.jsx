@@ -26,7 +26,7 @@ const Footer = () => {
 
           {/* Brand Info */}
           <div className="space-y-3">
-            <h3 className="text-xl font-bold">Ricket</h3>
+            <h3 className="text-xl font-bold">Reckit</h3>
             <p className="text-green-50 text-sm leading-relaxed">
               Your smart kitchen companion for healthier eating and smarter meal
               planning.
@@ -90,7 +90,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-white/20 mt-6 pt-4 flex flex-col md:flex-row justify-between items-center text-sm text-green-50 space-y-2 md:space-y-0">
-          <p>© 2025 Ricket. All rights reserved.</p>
+          <p>© 2025 Reckit. All rights reserved.</p>
           <div className="flex space-x-4">
             <button className="hover:text-white transition">Privacy</button>
             <button className="hover:text-white transition">Terms</button>
