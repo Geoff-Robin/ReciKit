@@ -1,10 +1,10 @@
+from Agent import chatbot_app
 import pytest
 from unittest.mock import AsyncMock, patch
 from langchain.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
-load_dotenv()
 
-from Agent import chatbot_app
+load_dotenv()
 
 
 @pytest.mark.asyncio

@@ -49,15 +49,18 @@ async def get_recommendations(user: str = Depends(current_user)):
         if not u:
             raise HTTPException(status_code=404, detail="User not found")
         likes = u.get("likes", "")
-        dislikes = u.get("dislikes", "")
+        allergies = u.get("allergies", "")
         inventory = u.get("inventory", "")
         result = requests.get(
             os.getenv("RECOMMENDATION_SERVICE_URL")+"/api/mealplan/",params={
-                "likes": likes+"\n"+inventory,
-                "dislikes": dislikes
+                "inventory": inventory,
+                "likes": likes,
+                "allergies": allergies
             }
         )
         return result.json()
 
     except Exception as e:
+        if isinstance(e, requests.exceptions.RequestException):
+            raise HTTPException(status_code=result.status_code, detail= result.text)
         raise HTTPException(status_code=500, detail=str(e))

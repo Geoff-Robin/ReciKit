@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Form, HTTPException, Request
 from dotenv import load_dotenv
-from pymongo import AsyncMongoClient
 from fastapi.responses import JSONResponse
 from itsdangerous import URLSafeSerializer
 from passlib.context import CryptContext
 import os
-import hashlib, base64
+import hashlib
+import base64
 
 load_dotenv()
 auth = APIRouter()
@@ -53,7 +53,7 @@ async def login(username: str = Form(), password: str = Form()):
     return r
 
 
-def current_user(request: Request):
+async def current_user(request: Request):
     c = request.cookies.get("session")
     if not c:
         raise HTTPException(status_code=401, detail="not logged in")

@@ -6,7 +6,6 @@ from Agent.prompts import SYSTEM_PROMPT
 from Agent.menu_handler import handle_menu
 from Agent.models import Conversation, Message
 from dotenv import load_dotenv
-
 load_dotenv()
 
 
@@ -44,9 +43,11 @@ async def chatbot_node(state: Conversation):
     return {"messages": state.messages + [reply]}
 
 async def get_likes_dislikes(user_id: str):
-    global mongo_client
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
     db = mongo_client["RecipeDB"]
     db.Users.find_one({"_id": ObjectId(user_id)})
+    
 
 graph = StateGraph(Conversation)
 graph.add_node("chatbot", chatbot_node)

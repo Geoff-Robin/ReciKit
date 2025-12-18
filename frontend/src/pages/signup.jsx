@@ -3,57 +3,98 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Leaf, Eye, EyeOff } from "lucide-react";
+import { Leaf, Eye, EyeOff, Plus, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-const SignUp = () => {
+const Signup = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    likes: "",
-    dislikes: "",
     password: "",
     confirmPassword: "",
+    likes: "",
+    allergies: "",
   });
+
+  const [inventory, setInventory] = useState([
+    { ingredient_name: "", quantity: "", unit: "grams" },
+  ]);
+
+  const addInventoryItem = () =>
+    setInventory([...inventory, { ingredient_name: "", quantity: "", unit: "grams" }]);
+
+  const updateInventoryItem = (index, field, value) => {
+    const updated = [...inventory];
+    updated[index][field] = value;
+    setInventory(updated);
+  };
+
+  const removeInventoryItem = (index) => {
+    setInventory(inventory.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) return;
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
+
     try {
-      const res = await fetch(
-        process.env.REACT_APP_API_URL + "/api/auth/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include", // <-- required for cookies
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            likes: formData.likes,
-            dislikes: formData.dislikes,
-            password: formData.password,
-          }),
-        }
-      );
+      const res = await fetch(process.env.VITE_BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.name,
+          email: formData.email,
+          password: formData.password,
+          likes: formData.likes,
+          allergies: formData.allergies,
+          inventory: inventory.filter((i) => i.ingredient_name.trim()+" "+i.quantity.trim()+" "+i.unit.trim())
+        }),
+      });
+
+      const data = await res.json();
 
       if (!res.ok) {
-        setLoading(false);
+        toast({
+          title: "Error",
+          description: data.message || "Failed to create account",
+          variant: "destructive",
+        });
         return;
       }
 
-      navigate("/preferences");
-    } catch (_) {
+      toast({
+        title: "Success",
+        description: "Account created successfully",
+      });
+
+      navigate("/home");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error?.message || "Server error",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleChange = (e) => {
     setFormData({
@@ -76,29 +117,17 @@ const SignUp = () => {
         <div className="bg-card rounded-2xl shadow-xl p-8 border border-border/50 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
+              <Label htmlFor="name">Username</Label>
+              <Input id="name" value={formData.name} onChange={handleChange} required />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
+              <Input id="email" type="email" value={formData.email} onChange={handleChange} required />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="likes">Food Likes</Label>
+              <Label htmlFor="likes">Likes</Label>
               <Input
                 id="likes"
                 type="text"
@@ -109,15 +138,62 @@ const SignUp = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dislikes">Food Dislikes</Label>
+              <Label htmlFor="allergies">Allergies</Label>
               <Input
-                id="dislikes"
+                id="allergies"
                 type="text"
-                placeholder="fish, mushrooms"
-                value={formData.dislikes}
+                placeholder="nuts, dairy"
+                value={formData.allergies}
                 onChange={handleChange}
               />
             </div>
+            <section className="mt-6">
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="font-semibold">Inventory</h2>
+                <Button type="button" variant="outline" onClick={addInventoryItem}>
+                  <Plus className="w-4 h-4" /> Add
+                </Button>
+              </div>
+
+              {inventory.map((item, i) => (
+                <div key={i} className="flex gap-2 items-center mb-2">
+                  <Input
+                    value={item.ingredient_name}
+                    placeholder="Ingredient"
+                    onChange={(e) => updateInventoryItem(i, "ingredient_name", e.target.value)}
+                  />
+
+                  <Input
+                    value={item.quantity}
+                    placeholder="Qty"
+                    type="number"
+                    onChange={(e) => updateInventoryItem(i, "quantity", e.target.value)}
+                  />
+
+                  <select
+                    value={item.unit}
+                    onChange={(e) => updateInventoryItem(i, "unit", e.target.value)}
+                    className="bg-background border rounded px-2 h-10"
+                  >
+                    <option value="grams">g</option>
+                    <option value="kilograms">kg</option>
+                    <option value="milliliters">ml</option>
+                    <option value="liters">L</option>
+                    <option value="pieces">pcs</option>
+                  </select>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeInventoryItem(i)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </section>
+
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -130,11 +206,8 @@ const SignUp = () => {
                   required
                   className="pr-10"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -160,8 +233,7 @@ const SignUp = () => {
                 </button>
               </div>
             </div>
-
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
               {loading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
@@ -169,9 +241,7 @@ const SignUp = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" className="text-primary hover:text-primary-glow font-semibold transition-colors">
-                Sign in
-              </Link>
+              <Link to="/login" className="text-primary font-semibold">Sign in</Link>
             </p>
           </div>
         </div>
@@ -184,4 +254,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Signup;

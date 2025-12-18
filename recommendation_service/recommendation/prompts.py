@@ -8,7 +8,7 @@ You will be given a pandas DataFrame containing multiple recipes of 'best match 
 
 You will also be given a list of ingredients called 'Disclude Recipes with Ingredients' that should not be present in the recipes you pick for the meal plan
 
-Your task is to analyze the provided recipes and generate a complete 7-day meal plan. Each day must include three meals:
+Your task is to analyze the provided recipes and generate a complete 7-day meal plan as well as the extra ingredients that maybe needed. Each day must include three meals:
 - Breakfast
 - Lunch
 - Dinner
