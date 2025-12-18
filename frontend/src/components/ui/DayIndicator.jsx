@@ -3,13 +3,16 @@ import React from 'react';
 const DayIndicator = ({ days, currentDay, onDayClick }) => {
   return (
     <div className="flex justify-center gap-2 mb-8">
-      {days.map((_, index) => (
+      {days.map((day, index) => (
         <button
-          key={index}
+          key={day}
           onClick={() => onDayClick(index)}
-          className={`w-2 h-2 rounded-full transition-all ${
-            index === currentDay ? 'bg-orange-600 w-8' : 'bg-gray-300 hover:bg-gray-400'
+          className={`w-3 h-3 rounded-full transition-all ${
+            index === currentDay
+              ? 'bg-emerald-600 w-8'
+              : 'bg-gray-300 hover:bg-gray-400'
           }`}
+          aria-label={`Go to ${day}`}
         />
       ))}
     </div>

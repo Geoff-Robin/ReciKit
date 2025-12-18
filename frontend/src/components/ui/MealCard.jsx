@@ -1,57 +1,65 @@
-import React from 'react';
-import { Utensils, Clock, ChefHat } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
-const MealCard = ({ mealType, meal }) => {
-  const getMealIcon = (mealName) => {
-    if (mealName === 'Breakfast') return <ChefHat className="w-5 h-5" />;
-    if (mealName === 'Lunch') return <Utensils className="w-5 h-5" />;
-    return <Clock className="w-5 h-5" />;
-  };
+const MealCard = ({ meal }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow p-6 border border-gray-100">
-      {/* Meal Header */}
-      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
-        <div className="p-2 bg-orange-100 rounded-lg text-orange-600">
-          {getMealIcon(mealType)}
+    <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+      {/* Card Header */}
+      <div 
+        className="p-4 cursor-pointer hover:bg-gray-50"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              {meal.title}
+            </h3>
+            <p className="text-sm text-emerald-600 font-medium mb-2">
+              Why this meal: {meal.reason}
+            </p>
+          </div>
+          <div className="ml-4 text-emerald-600">
+            {isExpanded ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+          </div>
         </div>
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-            {mealType}
-          </h3>
-          <h4 className="text-xl font-bold text-gray-800">{meal.title}</h4>
+      </div>
+
+      {/* Expanded Content */}
+      {isExpanded && (
+        <div className="p-4 pt-0 border-t border-gray-100">
+          {/* Ingredients Section */}
+          <div className="mb-4">
+            <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+              <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm">
+                Ingredients
+              </span>
+            </h4>
+            <ul className="space-y-1 ml-2">
+              {meal.ingredients?.map((ingredient, index) => (
+                <li key={index} className="text-gray-700 text-sm">
+                  • {ingredient.name}: {ingredient.quantity} {ingredient.metric}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Preparation Steps */}
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
+              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                Preparation Steps
+              </span>
+            </h4>
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-gray-700 text-sm whitespace-pre-line">
+                {meal.directions}
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Reason Badge */}
-      <div className="mb-4 p-3 bg-amber-50 rounded-lg border-l-4 border-amber-400">
-        <p className="text-sm text-gray-700">
-          <span className="font-semibold text-amber-700">Why this meal: </span>
-          {meal.reason}
-        </p>
-      </div>
-
-      {/* Ingredients */}
-      <div className="mb-4">
-        <h5 className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-          <span className="w-1 h-4 bg-orange-500 rounded"></span>
-          Ingredients
-        </h5>
-        <p className="text-gray-600 text-sm leading-relaxed pl-3">
-          {meal.ingredients}
-        </p>
-      </div>
-
-      {/* Directions */}
-      <div>
-        <h5 className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-          <span className="w-1 h-4 bg-orange-500 rounded"></span>
-          Directions
-        </h5>
-        <p className="text-gray-600 text-sm leading-relaxed pl-3">
-          {meal.directions}
-        </p>
-      </div>
+      )}
     </div>
   );
 };
