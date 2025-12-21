@@ -40,5 +40,5 @@ app.add_middleware(
 if __name__ == "__main__":
     import uvicorn
     PORT = os.getenv("PORT", "3000")
-    host = "127.0.0.1" if os.getenv("ENV") else "0.0.0.0"
+    host = "127.0.0.1" if os.getenv("ENV")=="development" else "0.0.0.0"
     uvicorn.run(app, host=host, port=int(PORT))
