@@ -30,8 +30,8 @@ async def signup(username: str = Form(), password: str = Form(), likes: str = Fo
     await users.insert_one({"username": username, "password": hashed, "likes": likes, "dislikes": dislikes, "inventory": inventory})
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
-    samesite = "lax" if os.getenv("ENV") == "development" else "strict"
-    r.set_cookie("session", token, httponly=True, samesite=samesite)
+    samesite = "strict" if os.getenv("ENV") == "development" else None
+    r.set_cookie("session", token, httponly=True, samesite=samesite, secure=True)
     return r
 
 
@@ -50,8 +50,8 @@ async def login(username: str = Form(), password: str = Form()):
 
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
-    samesite = "lax" if os.getenv("ENV") == "development" else "strict"
-    r.set_cookie("session", token, httponly=True, samesite=samesite)
+    samesite = "strict" if os.getenv("ENV") == "development" else None
+    r.set_cookie("session", token, httponly=True, samesite=samesite, secure= True)
     return r
 
 
