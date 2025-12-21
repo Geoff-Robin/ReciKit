@@ -7,27 +7,25 @@ import { Eye, EyeOff, Leaf } from "lucide-react";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await fetch(import.meta.env.VITE_API_URL + "/api/auth/login", {
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("password", password);
+
+      const res = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: formData,
+        credentials: "include"
       });
-
-      const data = await res.json();
-
       if (!res.ok) return;
-
-      localStorage.setItem("token", data.token);
-      navigate("/preferences");
+      navigate("/home");
     } catch {
       return;
     }
@@ -47,13 +45,12 @@ const Login = () => {
         <div className="bg-card rounded-2xl shadow-xl p-8 border border-border/50 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Email</Label>
+              <Label htmlFor="username" className="text-foreground">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 className="bg-background border-border focus:border-primary transition-colors"
               />
@@ -96,7 +93,7 @@ const Login = () => {
               className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold"
               size="lg"
             >
-              Sign In
+              Log In
             </Button>
           </form>
 

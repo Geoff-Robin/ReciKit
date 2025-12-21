@@ -36,9 +36,9 @@ async def health_check():
 
 fast_api_app.mount("/mcp", mcp_app.streamable_http_app())
 fast_api_app.include_router(recommendation_route, prefix="/api")
-PORT = os.getenv("PORT", "8000")
 
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run(fast_api_app, host="0.0.0.0", port=int(PORT))
+    PORT = os.getenv("PORT", "8000")
+    HOST = "0.0.0.0" if os.getenv("ENV") == "production" else "127.0.0.1"
+    uvicorn.run(fast_api_app, host=HOST, port=int(PORT))

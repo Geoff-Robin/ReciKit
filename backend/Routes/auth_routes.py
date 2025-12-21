@@ -30,7 +30,8 @@ async def signup(username: str = Form(), password: str = Form(), likes: str = Fo
     await users.insert_one({"username": username, "password": hashed, "likes": likes, "dislikes": dislikes, "inventory": inventory})
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
-    r.set_cookie("session", token, httponly=True, samesite="strict")
+    samesite = "lax" if os.getenv("ENV") == "development" else "strict"
+    r.set_cookie("session", token, httponly=True, samesite=samesite)
     return r
 
 
@@ -49,7 +50,8 @@ async def login(username: str = Form(), password: str = Form()):
 
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
-    r.set_cookie("session", token, httponly=True, samesite="strict")
+    samesite = "lax" if os.getenv("ENV") == "development" else "strict"
+    r.set_cookie("session", token, httponly=True, samesite=samesite)
     return r
 
 
@@ -62,6 +64,15 @@ async def current_user(request: Request):
         return d["username"]
     except Exception:
         raise HTTPException(status_code=401, detail="bad session")
+
+@auth.get("/check")
+async def check(request: Request):
+    result = await current_user(request=request)
+    if isinstance(result,str):
+        return {
+            "message" : "ok"
+        }
+
 
 
 @auth.post("/logout")

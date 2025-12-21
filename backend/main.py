@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.logger import logger
+from fastapi.middleware.cors import CORSMiddleware
 import contextlib
 from pymongo import AsyncMongoClient
 from Routes.auth_routes import auth
@@ -28,9 +29,16 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth, prefix="/api/auth")
 app.include_router(routes, prefix="/api")
 
-PORT = os.getenv("PORT", "3000")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["http://localhost:5173"],
+    allow_credentials = True,
+    allow_headers = ["*"],
+    allow_methods = ["*"]
+)
 
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=int(PORT))
+    PORT = os.getenv("PORT", "3000")
+    host = "127.0.0.1" if os.getenv("ENV") else "0.0.0.0"
+    uvicorn.run(app, host=host, port=int(PORT))
