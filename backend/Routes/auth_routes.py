@@ -5,6 +5,7 @@ from itsdangerous import URLSafeSerializer
 from passlib.context import CryptContext
 import os
 import hashlib
+import ast
 import base64
 
 load_dotenv()
@@ -27,7 +28,7 @@ async def signup(username: str = Form(), password: str = Form(), likes: str = Fo
     digest = hashlib.sha256(pw_bytes).digest()
     safe = base64.b64encode(digest)
     hashed = pwd.hash(safe)
-    await users.insert_one({"username": username, "password": hashed, "likes": likes, "dislikes": dislikes, "inventory": inventory})
+    await users.insert_one({"username": username, "password": hashed, "likes": likes, "dislikes": dislikes, "inventory": ast.literal_eval(inventory)})
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     samesite = "lax" if os.getenv("ENV") == "development" else "strict"
