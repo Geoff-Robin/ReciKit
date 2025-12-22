@@ -37,8 +37,7 @@ async def get_recommendation_tool(likes: str, dislikes: str):
 		logger.error(f"Error in get_recommendation tool: {e}", exc_info=True)
 		raise
 
-# TODO: Gotta test this.
-@alru_cache(maxsize=5)
+@alru_cache(maxsize=20)
 async def get_meal_plan(inventory: str, likes: str, allergies: str):
 	from recommendation.recommendation_controller import get_recommendation
 	from recommendation.models import WeeklyMealPlan
