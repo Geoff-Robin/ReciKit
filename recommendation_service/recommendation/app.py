@@ -1,5 +1,7 @@
 from mcp.server.fastmcp import FastMCP
 import os
+from typing import List
+from recommendation.models import Ingredient
 from async_lru import alru_cache
 from groq import AsyncGroq
 import json
@@ -89,3 +91,34 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 @recommendation_route.get("/mealplan/")
 async def get_meal_plan_endpoint(inventory: str, likes: str, allergies: str):
     return await get_meal_plan(inventory,likes,allergies)
+
+@mcp_app.tool()
+async def add_item_to_inventory(ingredients: List[Ingredient],username):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    await mongo_client["ReciKit"]["Users"].update_one({
+		username: username,
+	},
+    {
+		"$push" :{
+			"inventory" : {
+       				"$each": [ingredient.model_dump() for ingredient in ingredients]
+       		}
+		}
+	})
+
+@mcp_app.tool()
+async def update_preferences(username:str, likes: str, allergies: str):
+    from main import mongo_client
+    mongo_client = await mongo_client()
+    await mongo_client["ReciKit"]["Users"].update_one({
+		{
+			"username": username,
+		},
+		{
+			"$set":{
+				"likes": likes,
+				"allergies": allergies
+			}
+		}
+	})
