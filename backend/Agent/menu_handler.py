@@ -5,8 +5,6 @@ def handle_menu(user_input, messages):
         return Message(role="assistant", content="Okay! Let's record your inventory. Please tell me what items you want to add.")
     elif user_input.strip() == "2":
         return Message(role="assistant", content="Great! Please provide a recipe or ingredient list to analyze nutrition.")
-    elif user_input.strip() == "3":
-        return Message(role="assistant", content="Sure! Please tell me your preferences (e.g., vegetarian, high protein, etc.)")
     elif user_input.strip() == "4":
         return Message(role="assistant", content="Let's manage your profile. Do you want to update dietary preferences or allergies?")
     elif len(messages)==1:
