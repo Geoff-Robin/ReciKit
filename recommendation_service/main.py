@@ -34,7 +34,7 @@ fast_api_app = FastAPI(lifespan=lifespan)
 async def health_check():
     return {"status": "ok"}
 
-fast_api_app.mount("/mcp", mcp_app.streamable_http_app())
+fast_api_app.mount("/", mcp_app.streamable_http_app())
 fast_api_app.include_router(recommendation_route, prefix="/api")
 
 if __name__ == "__main__":
