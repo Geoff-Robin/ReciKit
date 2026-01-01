@@ -21,7 +21,8 @@ logger.setLevel(logging.DEBUG)
 
 
 logger.info("Initializing MCP Server for RecSys")
-mcp_app = FastMCP("MCP Server for RecSys", stateless_http=True)
+stateless_http_flag = True if not os.environ.get("STDIO_TRANSPORT") == 'true' else False
+mcp_app = FastMCP("MCP Server for RecSys", stateless_http=stateless_http_flag)
 
 
 @mcp_app.tool()
