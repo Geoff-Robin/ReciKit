@@ -94,32 +94,48 @@ async def get_meal_plan_endpoint(inventory: str, likes: str, allergies: str):
     return await get_meal_plan(inventory,likes,allergies)
 
 @mcp_app.tool()
-async def add_item_to_inventory(ingredients: List[Ingredient],username):
+async def add_item_to_inventory(ingredients: List[Ingredient], username: str):
     from main import get_mongo_client
     mongo_client = await get_mongo_client()
-    await mongo_client["ReciKit"]["Users"].update_one({
-		username: username,
-	},
-    {
-		"$push" :{
-			"inventory" : {
-       				"$each": [ingredient.model_dump() for ingredient in ingredients]
-       		}
-		}
-	})
+    await mongo_client["ReciKit"]["Users"].update_one(
+        {"username": username},
+        {
+            "$push": {
+                "inventory": {
+                    "$each": [ingredient.model_dump() for ingredient in ingredients]
+                }
+            }
+        }
+    )
 
 @mcp_app.tool()
-async def update_preferences(username:str, likes: str, allergies: str):
-    from main import mongo_client
-    mongo_client = await mongo_client()
-    await mongo_client["ReciKit"]["Users"].update_one({
-		{
-			"username": username,
-		},
-		{
-			"$set":{
-				"likes": likes,
-				"allergies": allergies
-			}
-		}
-	})
+async def get_user_profile(username: str):
+    """
+    Fetch the user's current inventory, likes, and allergies.
+    """
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["ReciKit"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    # Convert BSON types if necessary, though simple dict should work for MCP return
+    return {
+        "username": user.get("username"),
+        "inventory": user.get("inventory", []),
+        "likes": user.get("likes", ""),
+        "allergies": user.get("allergies", "")
+    }
+
+@mcp_app.tool()
+async def update_preferences(username: str, likes: str, allergies: str):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    await mongo_client["ReciKit"]["Users"].update_one(
+        {"username": username},
+        {
+            "$set": {
+                "likes": likes,
+                "allergies": allergies
+            }
+        }
+    )

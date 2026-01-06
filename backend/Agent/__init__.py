@@ -1,3 +1,3 @@
-from Agent.chatbot import chatbot
+from Agent.chatbot import ChatbotApp
 
-__all__ = ["chatbot"]
+__all__ = ["ChatbotApp"]

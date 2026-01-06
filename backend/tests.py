@@ -1,68 +1,36 @@
-from Agent import chatbot_app
+from Agent import ChatbotApp
 import pytest
 from unittest.mock import AsyncMock, patch
-from langchain.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
 
 load_dotenv()
 
+@pytest.mark.asyncio
+async def test_chatbot_initialization():
+    bot = ChatbotApp()
+    with patch("Agent.chatbot.MultiServerMCPClient") as mc:
+        mc.return_value.get_tools = AsyncMock(return_value=[])
+        await bot.initialize()
+        assert bot.graph is not None
 
 @pytest.mark.asyncio
-async def test_menu_option_1():
-    state = {"messages": [HumanMessage(content="1")]}
+async def test_chatbot_response():
+    bot = ChatbotApp()
     with patch("Agent.chatbot.MultiServerMCPClient") as mc, \
-         patch("Agent.chatbot.create_agent"):
+         patch("langchain_groq.ChatGroq.ainvoke") as mock_invoke:
+        
         mc.return_value.get_tools = AsyncMock(return_value=[])
-        result = await chatbot_app.ainvoke(state)
-
-    msg = result["messages"][-1]
-    assert isinstance(msg, AIMessage)
-    assert "record your inventory" in msg.content
-
-
-@pytest.mark.asyncio
-async def test_menu_option_2():
-    state = {"messages": [HumanMessage(content="2")]}
-    with patch("Agent.chatbot.MultiServerMCPClient") as mc, \
-         patch("Agent.chatbot.create_agent"):
-        mc.return_value.get_tools = AsyncMock(return_value=[])
-        result = await chatbot_app.ainvoke(state)
-
-    msg = result["messages"][-1]
-    assert "provide a recipe" in msg.content
-
-
-@pytest.mark.asyncio
-async def test_menu_option_3():
-    state = {"messages": [HumanMessage(content="3")]}
-    with patch("Agent.chatbot.MultiServerMCPClient") as mc, \
-         patch("Agent.chatbot.create_agent"):
-        mc.return_value.get_tools = AsyncMock(return_value=[])
-        result = await chatbot_app.ainvoke(state)
-
-    msg = result["messages"][-1]
-    assert "preferences" in msg.content
-
-
-@pytest.mark.asyncio
-async def test_menu_option_4():
-    state = {"messages": [HumanMessage(content="4")]}
-    with patch("Agent.chatbot.MultiServerMCPClient") as mc, \
-         patch("Agent.chatbot.create_agent"):
-        mc.return_value.get_tools = AsyncMock(return_value=[])
-        result = await chatbot_app.ainvoke(state)
-
-    msg = result["messages"][-1]
-    assert "manage your profile" in msg.content
-
-
-@pytest.mark.asyncio
-async def test_initial_greeting():
-    state = {"messages": [HumanMessage(content="hi")]}
-    with patch("Agent.chatbot.MultiServerMCPClient") as mc, \
-         patch("Agent.chatbot.create_agent"):
-        mc.return_value.get_tools = AsyncMock(return_value=[])
-        result = await chatbot_app.ainvoke(state)
-
-    msg = result["messages"][-1]
-    assert "What do you want to do today" in msg.content
+        mock_invoke.return_value = AIMessage(content="Hello! How can I help you?")
+        
+        await bot.initialize()
+        config = {"configurable": {"thread_id": "test"}}
+        state = {
+            "messages": [HumanMessage(content="hi")],
+            "username": "Jeff",
+            "user_id": "1"
+        }
+        result = await bot.ainvoke(state, config=config)
+        
+        assert "messages" in result
+        assert result["messages"][-1].content == "Hello! How can I help you?"
