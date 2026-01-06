@@ -5,6 +5,7 @@ from recommendation.models import Ingredient
 from async_lru import alru_cache
 from groq import AsyncGroq
 import json
+import ast
 from fastapi.routing import APIRouter
 from recommendation.logger import logger
 
@@ -38,10 +39,12 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 		search_results = await get_recommendation(inventory, likes, allergies)
 		filtered_results = []
 		for result in search_results:
+			directions_list = ast.literal_eval(result["directions"])
+			directions = "\n".join(directions_list)
 			filtered_results.append(
 				{
 					"title": result["title"],
-					"directions": result["directions"],
+					"directions": directions,
 					"ingredients": result["NER"],
 				}
 			)
