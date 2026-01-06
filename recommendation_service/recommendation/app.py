@@ -6,20 +6,9 @@ from async_lru import alru_cache
 from groq import AsyncGroq
 import json
 from fastapi.routing import APIRouter
-import logging
-import sys
+from recommendation.logger import logger
 
 recommendation_route = APIRouter()
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("mcp_server.log")],
-)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-
 logger.info("Initializing MCP Server for RecSys")
 stateless_http_flag = True if not os.environ.get("STDIO_TRANSPORT") == 'true' else False
 mcp_app = FastMCP("MCP Server for RecSys", stateless_http=stateless_http_flag)
@@ -29,9 +18,7 @@ mcp_app = FastMCP("MCP Server for RecSys", stateless_http=stateless_http_flag)
 async def get_recommendation_tool(likes: str, dislikes: str):
 	from recommendation.recommendation_controller import get_recommendation
 
-	logger.info(
-		f"Tool 'get_recommendation' invoked with likes: '{likes}', dislikes: '{dislikes}'"
-	)
+	logger.info(f"Tool 'get_recommendation' invoked (likes: {likes}, dislikes: {dislikes})")
 	try:
 		results = await get_recommendation(likes, dislikes)
 		logger.info(f"Returning {len(results)} recommendations")
@@ -46,9 +33,7 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 	from recommendation.models import WeeklyMealPlan
 	import recommendation.prompts as prompts
 
-	logger.info(
-		f"Tool 'get_meal_plan' invoked with parameters: inventory- '{inventory}', likes- '{likes}', allergies- '{allergies}'"
-	)
+	logger.info(f"Tool 'get_meal_plan' invoked (inventory size: {len(inventory)})")
 	try:
 		search_results = await get_recommendation(inventory, likes, allergies)
 		filtered_results = []
@@ -70,7 +55,7 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 				},
 				{
 					"role": "user",
-					"content": f"Recipes DataFrame:\n{str(filtered_results)}\n\n\nDisclude Recipes with Ingredients: {allergies}",
+					"content": f"Recipes DataFrame:\n{str(filtered_results)}\n\nUser Inventory: {inventory}\n\nDisclude Recipes with Ingredients: {allergies}",
 				},
 			],
 			response_format={
@@ -89,8 +74,7 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 		raise
 
 @mcp_app.tool()
-@recommendation_route.get("/mealplan/")
-async def get_meal_plan_endpoint(inventory: str, likes: str, allergies: str):
+async def get_meal_plan_tool(inventory: str, likes: str, allergies: str):
     return await get_meal_plan(inventory,likes,allergies)
 
 @mcp_app.tool()

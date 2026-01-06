@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from fastapi.logger import logger
 import contextlib
-from recommendation import mcp_app, recommendation_route
+from recommendation import mcp_app, get_meal_plan
 from pymongo import AsyncMongoClient
 from qdrant_client import AsyncQdrantClient
 from dotenv import load_dotenv
@@ -34,8 +33,11 @@ fast_api_app = FastAPI(lifespan=lifespan)
 async def health_check():
     return {"status": "ok"}
 
+@fast_api_app.get("/api/mealplan/")
+async def get_meal_plan_endpoint(inventory: str, likes: str, allergies: str):
+    return await get_meal_plan(inventory,likes,allergies)
+
 fast_api_app.mount("/", mcp_app.streamable_http_app())
-fast_api_app.include_router(recommendation_route, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn
