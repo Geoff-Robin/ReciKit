@@ -28,7 +28,9 @@ async def get_recommendation_tool(likes: str, dislikes: str):
 		logger.error(f"Error in get_recommendation tool: {e}", exc_info=True)
 		raise
 
-def parse_directions(directions: str):
+def parse_directions(directions: str | List[str]):
+    if isinstance(directions, list):
+        return directions
     try:
         return ast.literal_eval(directions)
     except (ValueError, SyntaxError):
