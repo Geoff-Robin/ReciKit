@@ -21,7 +21,7 @@ class ChatbotApp:
         self.mcp_settings = {
             "recommendation_service": {
                 "transport": "http",
-                "url": "http://localhost:3000/mcp",
+                "url": os.getenv("RECOMMENDATION_SERVICE_URL", "http://localhost:3000") + "/mcp",
             }
         }
         self.client = MultiServerMCPClient(self.mcp_settings)
