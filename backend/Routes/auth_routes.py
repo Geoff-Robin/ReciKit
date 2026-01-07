@@ -16,7 +16,7 @@ serializer = URLSafeSerializer(secret_key=os.getenv("SECRET_KEY"))
 
 
 @auth.post("/signup")
-async def signup(username: str = Form(), password: str = Form(), likes: str = Form(), dislikes: str = Form(), inventory: str = Form()):
+async def signup(username: str = Form(), email: str = Form(), password: str = Form(), likes: str = Form(), dislikes: str = Form(), inventory: str = Form()):
     from main import get_mongo_client
     mongo_client = await get_mongo_client()
     db = mongo_client["RecipeDB"]
@@ -28,7 +28,7 @@ async def signup(username: str = Form(), password: str = Form(), likes: str = Fo
     digest = hashlib.sha256(pw_bytes).digest()
     safe = base64.b64encode(digest)
     hashed = pwd.hash(safe)
-    await users.insert_one({"username": username, "password": hashed, "likes": likes, "dislikes": dislikes, "inventory": ast.literal_eval(inventory)})
+    await users.insert_one({"username": username, "email": email, "password": hashed, "likes": likes, "dislikes": dislikes, "inventory": ast.literal_eval(inventory)})
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     samesite = "strict" if os.getenv("ENV") == "development" else None
