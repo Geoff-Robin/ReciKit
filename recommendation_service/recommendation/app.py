@@ -39,7 +39,7 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 		search_results = await get_recommendation(inventory, likes, allergies)
 		filtered_results = []
 		for result in search_results:
-			directions_list = ast.literal_eval(result["directions"])
+			directions_list = json.loads(result["directions"])
 			directions = "\n".join(directions_list)
 			filtered_results.append(
 				{
