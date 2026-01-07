@@ -82,7 +82,14 @@ class ChatbotApp:
                     processed_messages.append(m)
 
             messages = [system_msg] + processed_messages
-            response = await self.model_with_tools.ainvoke(messages)
+            try:
+                response = await self.model_with_tools.ainvoke(messages)
+            except Exception as e:
+                error_str = str(e).lower()
+                if "413" in error_str or "token" in error_str or "rate_limit" in error_str:
+                     return {"messages": [AIMessage(content="🚫 **Token Limit Exceeded**\n\nI can't process this request because our conversation history is too long. Please refresh the page to start a new chat.")]}
+                raise e
+            
             return {"messages": [response]}
 
         # Define the graph
