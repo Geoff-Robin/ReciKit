@@ -9,11 +9,13 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("username", username);
@@ -27,8 +29,10 @@ const Login = () => {
       });
       if (!res.ok) return;
       navigate("/home");
-    } catch {
-      return;
+    } catch (err) {
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,8 +97,9 @@ const Login = () => {
               type="submit"
               className="w-full bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold"
               size="lg"
+              disabled={loading}
             >
-              Log In
+              {loading ? "Logging in..." : "Log In"}
             </Button>
           </form>
 
