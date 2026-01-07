@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from dotenv import load_dotenv
-from groq import AsyncGroq
-from Agent.chatbot import chatbot
-from Agent.models import Message
+# from groq import AsyncGroq
+# from Agent.chatbot import chatbot
+# from Agent.models import Message
 from Routes.auth_routes import current_user
 from typing import Tuple, Dict, Any
 import requests
@@ -32,31 +32,7 @@ async def meal_plan_exists(username: str) -> Tuple[bool, Dict[str, Any]]:
 
 @routes.post("/chats")
 async def chat_endpoint(state: dict, user: str = Depends(current_user)):
-    try:
-        from main import get_mongo_client
-        mongo_client = await get_mongo_client()
-        reply = None
-        if len(state.get("messages", [])) >= 10:
-            groq_client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
-            completion = await groq_client.chat.completions.create(
-                model="openai/gpt-oss-120b",
-                messages=[{"role": "system", "content": "Summarize the following conversation briefly to reduce context length."}] +
-                         [{"role": m["role"], "content": m["content"]} for m in state["messages"]],
-            )
-            output = completion.choices[0].message.content
-            reply = Message(role="assistant", content=output)
-        state+={"messages": state.get("messages", []) + ([reply] if reply else [])}
-        result = await chatbot.ainvoke(state)
-        await mongo_client.RecipeDB.Chats.update_one(
-            {"username": user},
-            {
-            "$push": {"conversation": {"$each": result["messages"]}}
-            },
-            upsert=True
-        )
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    pass
 
 @routes.get("/recommendations")
 async def get_recommendations(user: str = Depends(current_user)):
@@ -74,10 +50,14 @@ async def get_recommendations(user: str = Depends(current_user)):
         else: 
             likes = u.get("likes", "")
             allergies = u.get("allergies", "")
-            inventory = u.get("inventory", "")
+            inventory_list = u.get("inventory", "")
+            inventory_str = ", ".join(
+                f"{item['ingredient_name']} {item['quantity']} {item['unit']}"
+                for item in inventory_list
+            )
             result = requests.get(
                 os.getenv("RECOMMENDATION_SERVICE_URL")+"/api/mealplan/",params={
-                    "inventory": inventory,
+                    "inventory": inventory_str,
                     "likes": likes,
                     "allergies": allergies
                 }

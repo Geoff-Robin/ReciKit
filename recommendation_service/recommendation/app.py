@@ -110,7 +110,8 @@ async def get_user_profile(username: str):
         "username": user.get("username"),
         "inventory": user.get("inventory", []),
         "likes": user.get("likes", ""),
-        "allergies": user.get("allergies", "")
+        "allergies": user.get("allergies", ""),
+        "mealPlan": user.get("mealPlan", "")
     }
 
 @mcp_app.tool()
