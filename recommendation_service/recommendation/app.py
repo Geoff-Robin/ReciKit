@@ -28,6 +28,16 @@ async def get_recommendation_tool(likes: str, dislikes: str):
 		logger.error(f"Error in get_recommendation tool: {e}", exc_info=True)
 		raise
 
+def parse_directions(directions: str):
+    try:
+        return ast.literal_eval(directions)
+    except (ValueError, SyntaxError):
+        try:
+            return json.loads(directions)
+        except json.JSONDecodeError:
+             logger.warning(f"Failed to parse directions: {directions}")
+             return []
+
 @alru_cache(maxsize=20)
 async def get_meal_plan(inventory: str, likes: str, allergies: str):
 	from recommendation.recommendation_controller import get_recommendation
@@ -39,7 +49,7 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 		search_results = await get_recommendation(inventory, likes, allergies)
 		filtered_results = []
 		for result in search_results:
-			directions_list = json.loads(result["directions"])
+			directions_list = parse_directions(result["directions"])
 			directions = "\n".join(directions_list)
 			filtered_results.append(
 				{
