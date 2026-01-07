@@ -123,24 +123,58 @@ async def add_item_to_inventory(ingredients: List[Ingredient], username: str):
 
 
 @mcp_app.tool()
-async def get_user_profile(username: str):
+async def get_user_inventory(username: str):
     """
-    Fetch the user's current inventory, likes, and allergies.
+    Fetch the user's current inventory.
     """
     from main import get_mongo_client
 
-    logger.info(f"Tool 'get_user_profile' invoked (username: {username})")
+    logger.info(f"Tool 'get_user_inventory' invoked (username: {username})")
     mongo_client = await get_mongo_client()
     user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
     if not user:
         return {"error": "User not found"}
-    # Convert BSON types if necessary, though simple dict should work for MCP return
     return {
         "username": user.get("username"),
         "inventory": user.get("inventory", []),
+    }
+
+
+@mcp_app.tool()
+async def get_user_interests(username: str):
+    """
+    Fetch the user's likes, dislikes, and allergies.
+    """
+    from main import get_mongo_client
+
+    logger.info(f"Tool 'get_user_interests' invoked (username: {username})")
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    return {
+        "username": user.get("username"),
         "likes": user.get("likes", ""),
+        "dislikes": user.get("dislikes", ""),
         "allergies": user.get("allergies", ""),
-        "mealPlan": user.get("mealPlan", ""),
+    }
+
+
+@mcp_app.tool()
+async def get_user_meal_plan(username: str):
+    """
+    Fetch the user's current meal plan.
+    """
+    from main import get_mongo_client
+
+    logger.info(f"Tool 'get_user_meal_plan' invoked (username: {username})")
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    return {
+        "username": user.get("username"),
+        "mealPlan": user.get("mealPlan", {}),
     }
 
 

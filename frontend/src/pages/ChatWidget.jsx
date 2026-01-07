@@ -13,19 +13,35 @@ export default function ChatWidget({ isOpen, onClose }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isGenerating]);
 
-  const sendMessageToAgent = async (updatedMessages) => {
+  // Session Management
+  const getSessionId = () => {
+    let id = localStorage.getItem("chat_session_id");
+    if (!id) {
+      id = "guest_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem("chat_session_id", id);
+    }
+    return id;
+  };
+
+  const sendMessageToAgent = async (userText) => {
     setIsGenerating(true);
     try {
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch("/api/chats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedMessages }),
+        body: JSON.stringify({ message: userText, thread_id: getSessionId() }),
       });
 
+      if (!response.ok) {
+        const text = await response.text();
+        console.error(`API Error (${response.status}):`, text);
+        return `Error: ${response.status} - ${response.statusText}`;
+      }
+
       const data = await response.json();
-      return data.reply;
+      return data.response;
     } catch (error) {
-      console.error(error);
+      console.error("Fetch Error:", error);
       return "Sorry, something went wrong.";
     } finally {
       setIsGenerating(false);
@@ -41,7 +57,7 @@ export default function ChatWidget({ isOpen, onClose }) {
     setMessages(updatedMessages);
     setValue("");
 
-    const reply = await sendMessageToAgent(updatedMessages);
+    const reply = await sendMessageToAgent(value);
 
     setMessages((prev) => [
       ...prev,
@@ -67,11 +83,10 @@ export default function ChatWidget({ isOpen, onClose }) {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`max-w-[75%] px-3 py-2 rounded-lg ${
-              msg.role === "user"
-                ? "ml-auto bg-emerald-600 text-white"
-                : "mr-auto bg-gray-200 text-gray-800"
-            }`}
+            className={`max-w-[75%] px-3 py-2 rounded-lg ${msg.role === "user"
+              ? "ml-auto bg-emerald-600 text-white"
+              : "mr-auto bg-gray-200 text-gray-800"
+              }`}
           >
             {msg.content}
           </div>

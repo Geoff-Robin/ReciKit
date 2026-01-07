@@ -33,16 +33,26 @@ export default function Chatbot() {
     }
   }, [messages, isGenerating]);
 
-  const sendMessageToAgent = async (updatedMessages) => {
+  // Session Management
+  const getSessionId = () => {
+    let id = localStorage.getItem("chat_session_id");
+    if (!id) {
+      id = "guest_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem("chat_session_id", id);
+    }
+    return id;
+  };
+
+  const sendMessageToAgent = async (userText) => {
     setIsGenerating(true);
     try {
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch("/api/chats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedMessages }),
+        body: JSON.stringify({ message: userText, thread_id: getSessionId() }),
       });
       const data = await response.json();
-      return data.reply;
+      return data.response;
     } catch (error) {
       console.error("Error calling API:", error);
       return "Sorry, something went wrong.";
@@ -60,7 +70,7 @@ export default function Chatbot() {
     setMessages(updatedMessages);
     setValue("");
 
-    const reply = await sendMessageToAgent(updatedMessages);
+    const reply = await sendMessageToAgent(value);
     const botMessage = { id: (Date.now() + 1).toString(), role: "assistant", content: reply };
     setMessages((prev) => [...prev, botMessage]);
   };
@@ -69,7 +79,7 @@ export default function Chatbot() {
     const updatedMessages = [...messages, message];
     setMessages(updatedMessages);
 
-    const reply = await sendMessageToAgent(updatedMessages);
+    const reply = await sendMessageToAgent(message.content);
     const botMessage = { id: (Date.now() + 1).toString(), role: "assistant", content: reply };
     setMessages((prev) => [...prev, botMessage]);
   };

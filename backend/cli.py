@@ -19,7 +19,7 @@ async def main():
         print(f"Error initializing chatbot (is the MCP server running?): {e}")
         # We can still proceed if the bot handles fallback internally
 
-    username = "mike"
+    username = "jeff"
     user_id = "user_123"
     config = {"configurable": {"thread_id": "cli_session_1"}}
 

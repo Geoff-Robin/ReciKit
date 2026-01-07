@@ -7,6 +7,7 @@ from pymongo import AsyncMongoClient
 from Routes.auth_routes import auth
 from Routes.routes import routes
 import os
+from Agent.chatbot import ChatbotApp
 
 load_dotenv()
 
@@ -16,6 +17,13 @@ mongo_client = AsyncMongoClient(os.getenv("MONGO_DB_URI"))
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up...")
+    app.state.chatbot = ChatbotApp()
+    try:
+        await app.state.chatbot.initialize()
+        logger.info("Chatbot initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize chatbot: {e}")
+    
     yield
     logger.info("Shutting down...")
     await mongo_client.close()

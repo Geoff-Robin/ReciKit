@@ -48,8 +48,10 @@ async def signup(
     )
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
-    samesite = "strict" if os.getenv("ENV") == "development" else None
-    r.set_cookie("session", token, httponly=True, samesite=samesite, secure=True)
+    is_dev = os.getenv("ENV") == "development"
+    samesite = "strict" if is_dev else "lax"
+    secure_cookie = not is_dev
+    r.set_cookie("session", token, httponly=True, samesite=samesite, secure=secure_cookie)
     return r
 
 
@@ -69,8 +71,10 @@ async def login(username: str = Form(), password: str = Form()):
 
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
-    samesite = "strict" if os.getenv("ENV") == "development" else None
-    r.set_cookie("session", token, httponly=True, samesite=samesite, secure=True)
+    is_dev = os.getenv("ENV") == "development"
+    samesite = "strict" if is_dev else "lax"
+    secure_cookie = not is_dev
+    r.set_cookie("session", token, httponly=True, samesite=samesite, secure=secure_cookie)
     return r
 
 
@@ -83,6 +87,13 @@ async def current_user(request: Request):
         return d["username"]
     except Exception:
         raise HTTPException(status_code=401, detail="bad session")
+
+
+async def get_optional_current_user(request: Request):
+    try:
+        return await current_user(request)
+    except HTTPException:
+        return None
 
 
 @auth.get("/check")

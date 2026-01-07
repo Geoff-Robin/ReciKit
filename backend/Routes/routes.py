@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from dotenv import load_dotenv
 
 # from groq import AsyncGroq
 # from Agent.chatbot import chatbot
 # from Agent.models import Message
-from Routes.auth_routes import current_user
-from typing import Tuple, Dict, Any
+from Routes.auth_routes import current_user, get_optional_current_user
+from typing import Tuple, Dict, Any, List
+from typing import Tuple, Dict, Any, List
+from langchain_core.messages import HumanMessage
 import requests
 import os
 
@@ -34,8 +36,39 @@ async def meal_plan_exists(username: str) -> Tuple[bool, Dict[str, Any]]:
 
 
 @routes.post("/chats")
-async def chat_endpoint(state: dict, user: str = Depends(current_user)):
-    pass
+async def chat_endpoint(request: Request, payload: dict, user: str = Depends(get_optional_current_user)):
+    try:
+        user_input = payload.get("message")
+        
+        # If no user logged in, default to "Guest"
+        username = user if user else "Guest"
+        
+        # Priority: Payload thread_id > User ID based > Guest ID default
+        thread_id = payload.get("thread_id")
+        if not thread_id:
+             thread_id = f"user_{username}" if user else "guest_session"
+
+        if not user_input:
+             raise HTTPException(status_code=400, detail="Message is required")
+
+        bot = request.app.state.chatbot
+        
+        config = {"configurable": {"thread_id": thread_id}}
+        inputs = {
+            "messages": [HumanMessage(content=user_input)],
+            "username": username,
+            "user_id": username # simple mapping
+        }
+        
+        # We need to get the last message. We can invoke or stream.
+        # Simple invoke is safer for basic request/response.
+        result = await bot.ainvoke(inputs, config=config)
+        last_msg = result["messages"][-1]
+        
+        return {"response": last_msg.content}
+    except Exception as e:
+        print(f"Chat Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @routes.get("/recommendations")
