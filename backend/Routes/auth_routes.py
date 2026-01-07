@@ -16,8 +16,16 @@ serializer = URLSafeSerializer(secret_key=os.getenv("SECRET_KEY"))
 
 
 @auth.post("/signup")
-async def signup(username: str = Form(), email: str = Form(), password: str = Form(), likes: str = Form(), dislikes: str = Form(), inventory: str = Form()):
+async def signup(
+    username: str = Form(),
+    email: str = Form(),
+    password: str = Form(),
+    likes: str = Form(),
+    dislikes: str = Form(),
+    inventory: str = Form(),
+):
     from main import get_mongo_client
+
     mongo_client = await get_mongo_client()
     db = mongo_client["RecipeDB"]
     users = db.Users
@@ -28,7 +36,16 @@ async def signup(username: str = Form(), email: str = Form(), password: str = Fo
     digest = hashlib.sha256(pw_bytes).digest()
     safe = base64.b64encode(digest)
     hashed = pwd.hash(safe)
-    await users.insert_one({"username": username, "email": email, "password": hashed, "likes": likes, "dislikes": dislikes, "inventory": ast.literal_eval(inventory)})
+    await users.insert_one(
+        {
+            "username": username,
+            "email": email,
+            "password": hashed,
+            "likes": likes,
+            "dislikes": dislikes,
+            "inventory": ast.literal_eval(inventory),
+        }
+    )
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     samesite = "strict" if os.getenv("ENV") == "development" else None
@@ -39,6 +56,7 @@ async def signup(username: str = Form(), email: str = Form(), password: str = Fo
 @auth.post("/login")
 async def login(username: str = Form(), password: str = Form()):
     from main import get_mongo_client
+
     mongo_client = await get_mongo_client()
     db = mongo_client["RecipeDB"]
     users = db.Users
@@ -52,7 +70,7 @@ async def login(username: str = Form(), password: str = Form()):
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     samesite = "strict" if os.getenv("ENV") == "development" else None
-    r.set_cookie("session", token, httponly=True, samesite=samesite, secure= True)
+    r.set_cookie("session", token, httponly=True, samesite=samesite, secure=True)
     return r
 
 
@@ -66,14 +84,12 @@ async def current_user(request: Request):
     except Exception:
         raise HTTPException(status_code=401, detail="bad session")
 
+
 @auth.get("/check")
 async def check(request: Request):
     result = await current_user(request=request)
-    if isinstance(result,str):
-        return {
-            "message" : "ok"
-        }
-
+    if isinstance(result, str):
+        return {"message": "ok"}
 
 
 @auth.post("/logout")

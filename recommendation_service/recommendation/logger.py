@@ -3,12 +3,13 @@ import sys
 from logging.handlers import RotatingFileHandler
 import os
 
+
 def setup_logger(name: str = None):
     """
     Sets up a centralized logger with console and rotating file handlers.
     """
     logger = logging.getLogger(name)
-    
+
     # If logger already has handlers, don't add them again
     if logger.handlers:
         return logger
@@ -19,17 +20,16 @@ def setup_logger(name: str = None):
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_format = logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(message)s",
-        datefmt="%H:%M:%S"
+        "%(asctime)s - %(levelname)s - %(message)s", datefmt="%H:%M:%S"
     )
     console_handler.setFormatter(console_format)
 
     # File Handler - Detailed and Rotating
     log_file = "mcp_server.log"
     file_handler = RotatingFileHandler(
-        log_file, 
+        log_file,
         maxBytes=5 * 1024 * 1024,  # 5MB
-        backupCount=3
+        backupCount=3,
     )
     file_handler.setLevel(logging.DEBUG)
     file_format = logging.Formatter(
@@ -50,12 +50,13 @@ def setup_logger(name: str = None):
         "pymongo",
         "qdrant_client",
         "httpx",
-        "asyncio"
+        "asyncio",
     ]
     for logger_name in silence_loggers:
         logging.getLogger(logger_name).setLevel(logging.WARNING)
 
     return logger
+
 
 # Create a default instance
 logger = setup_logger()

@@ -29,14 +29,13 @@ async def get_recommendation(inventory: str, likes: str, allergies: str):
 
     points = result.points
     for point in points:
-        point.score = (point.score + cosine_similarity(like_vec, np.array(point.vector))) / 2
+        point.score = (
+            point.score + cosine_similarity(like_vec, np.array(point.vector))
+        ) / 2
     points.sort(key=lambda x: x.score, reverse=True)
-    
+
     for point in points:
-        point.score = cosine_similarity(
-            allergies_vec,
-            np.array(point.vector)
-        )
+        point.score = cosine_similarity(allergies_vec, np.array(point.vector))
     points.sort(key=lambda x: x.score)
 
     out = []

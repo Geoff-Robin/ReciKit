@@ -1,10 +1,12 @@
 from pydantic import BaseModel
 from typing import List, Literal
 
+
 class Ingredient(BaseModel):
     name: str
     quantity: int
-    metric: Literal['gram', 'kilogram', 'milimeter', 'liter']
+    metric: Literal["gram", "kilogram", "milimeter", "liter"]
+
 
 class MealItem(BaseModel):
     title: str

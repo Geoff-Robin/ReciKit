@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from dotenv import load_dotenv
+
 # from groq import AsyncGroq
 # from Agent.chatbot import chatbot
 # from Agent.models import Message
@@ -11,16 +12,17 @@ import os
 load_dotenv()
 routes = APIRouter()
 
+
 async def meal_plan_exists(username: str) -> Tuple[bool, Dict[str, Any]]:
     try:
         from main import get_mongo_client
+
         mongo_client = await get_mongo_client()
         users = mongo_client["RecipeDB"]["Users"]
 
-        user = await users.find_one({
-            "username": username,
-            "mealPlan": {"$exists": True}
-        })
+        user = await users.find_one(
+            {"username": username, "mealPlan": {"$exists": True}}
+        )
 
         if not user or "mealPlan" not in user:
             return False, {"message": "none"}
@@ -28,26 +30,29 @@ async def meal_plan_exists(username: str) -> Tuple[bool, Dict[str, Any]]:
         return True, user["mealPlan"]
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))         
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @routes.post("/chats")
 async def chat_endpoint(state: dict, user: str = Depends(current_user)):
     pass
 
+
 @routes.get("/recommendations")
 async def get_recommendations(user: str = Depends(current_user)):
     try:
         from main import get_mongo_client
+
         mongo_client = await get_mongo_client()
         db = mongo_client["RecipeDB"]
         users = db.Users
         u = await users.find_one({"username": user})
         if not u:
             raise HTTPException(status_code=404, detail="User not found")
-        check, meal_plan = await meal_plan_exists(username=user) 
+        check, meal_plan = await meal_plan_exists(username=user)
         if check:
             return meal_plan
-        else: 
+        else:
             likes = u.get("likes", "")
             allergies = u.get("allergies", "")
             inventory_list = u.get("inventory", "")
@@ -56,19 +61,19 @@ async def get_recommendations(user: str = Depends(current_user)):
                 for item in inventory_list
             )
             result = requests.get(
-                os.getenv("RECOMMENDATION_SERVICE_URL")+"/api/mealplan/",params={
+                os.getenv("RECOMMENDATION_SERVICE_URL") + "/api/mealplan/",
+                params={
                     "inventory": inventory_str,
                     "likes": likes,
-                    "allergies": allergies
-                }
+                    "allergies": allergies,
+                },
             )
             await users.update_one(
-                {"username": user},
-                {"$set":{"mealPlan": result.json()}}
+                {"username": user}, {"$set": {"mealPlan": result.json()}}
             )
             return result.json()
 
     except Exception as e:
         if isinstance(e, requests.exceptions.RequestException):
-            raise HTTPException(status_code=result.status_code, detail= result.text)
+            raise HTTPException(status_code=result.status_code, detail=result.text)
         raise HTTPException(status_code=500, detail=str(e))

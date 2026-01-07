@@ -20,9 +20,11 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down...")
     await mongo_client.close()
 
+
 async def get_mongo_client() -> AsyncMongoClient:
     global mongo_client
     return mongo_client
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -31,14 +33,15 @@ app.include_router(routes, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ["http://localhost:5173","https://reci-kit.vercel.app"],
-    allow_credentials = True,
-    allow_headers = ["*"],
-    allow_methods = ["*"]
+    allow_origins=["http://localhost:5173", "https://reci-kit.vercel.app"],
+    allow_credentials=True,
+    allow_headers=["*"],
+    allow_methods=["*"],
 )
 
 if __name__ == "__main__":
     import uvicorn
+
     PORT = os.getenv("PORT", "3000")
-    host = "127.0.0.1" if os.getenv("ENV")=="development" else "0.0.0.0"
+    host = "127.0.0.1" if os.getenv("ENV") == "development" else "0.0.0.0"
     uvicorn.run(app, host=host, port=int(PORT))
