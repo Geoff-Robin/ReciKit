@@ -107,7 +107,7 @@ async def add_item_to_inventory(ingredients: List[Ingredient], username: str):
     )
     mongo_client = await get_mongo_client()
     try:
-        await mongo_client["ReciKit"]["Users"].update_one(
+        await mongo_client["RecipeDB"]["Users"].update_one(
             {"username": username},
             {
                 "$push": {
@@ -131,7 +131,7 @@ async def get_user_profile(username: str):
 
     logger.info(f"Tool 'get_user_profile' invoked (username: {username})")
     mongo_client = await get_mongo_client()
-    user = await mongo_client["ReciKit"]["Users"].find_one({"username": username})
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
     if not user:
         return {"error": "User not found"}
     # Convert BSON types if necessary, though simple dict should work for MCP return
@@ -153,7 +153,7 @@ async def update_preferences(username: str, likes: str, allergies: str):
     )
     mongo_client = await get_mongo_client()
     try:
-        await mongo_client["ReciKit"]["Users"].update_one(
+        await mongo_client["RecipeDB"]["Users"].update_one(
             {"username": username}, {"$set": {"likes": likes, "allergies": allergies}}
         )
     except Exception as e:
