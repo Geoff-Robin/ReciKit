@@ -1,4 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { transcribeAudio } from "../lib/utils/audio";
 import { ChatForm } from "../components/ui/ChatForm";
 import { MessageInput } from "../components/ui/MessageInput";
@@ -109,7 +111,10 @@ export default function Chatbot() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="w-full max-w-3xl mx-auto flex flex-col h-full">
+      <div className="w-full max-w-3xl mx-auto flex flex-col h-full relative">
+        <Link to="/home" className="absolute top-4 left-4 flex items-center gap-2 text-white hover:underline bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm transition-all hover:bg-black/70">
+          <ArrowLeft className="w-4 h-4" /> Back to Home
+        </Link>
         <PromptSuggestions
           label="Try these prompts"
           append={appendPrompt}
