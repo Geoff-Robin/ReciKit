@@ -49,7 +49,7 @@ async def signup(
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     is_dev = os.getenv("ENV") == "development"
-    samesite = "strict" if is_dev else "lax"
+    samesite = "strict" if is_dev else "none"
     secure_cookie = not is_dev
     r.set_cookie("session", token, httponly=True, samesite=samesite, secure=secure_cookie)
     return r
@@ -72,7 +72,7 @@ async def login(username: str = Form(), password: str = Form()):
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     is_dev = os.getenv("ENV") == "development"
-    samesite = "strict" if is_dev else "lax"
+    samesite = "strict" if is_dev else "none"
     secure_cookie = not is_dev
     r.set_cookie("session", token, httponly=True, samesite=samesite, secure=secure_cookie)
     return r
@@ -106,5 +106,8 @@ async def check(request: Request):
 @auth.post("/logout")
 async def logout():
     r = JSONResponse({"message": "ok"})
-    r.delete_cookie("session")
+    is_dev = os.getenv("ENV") == "development"
+    samesite = "strict" if is_dev else "none"
+    secure_cookie = not is_dev
+    r.delete_cookie("session", httponly=True, samesite=samesite, secure=secure_cookie)
     return r

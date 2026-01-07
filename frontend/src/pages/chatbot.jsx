@@ -46,10 +46,12 @@ export default function Chatbot() {
   const sendMessageToAgent = async (userText) => {
     setIsGenerating(true);
     try {
-      const response = await fetch("/api/chats", {
+      const baseUrl = import.meta.env.VITE_BACKEND_URL || "";
+      const response = await fetch(`${baseUrl}/api/chats`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userText, thread_id: getSessionId() }),
+        credentials: "include"
       });
       const data = await response.json();
       return data.response;
