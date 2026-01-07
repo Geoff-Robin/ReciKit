@@ -19,7 +19,8 @@ const Login = () => {
       formData.append("username", username);
       formData.append("password", password);
 
-      const res = await fetch(import.meta.env.VITE_BACKEND_URL + "/api/auth/login", {
+      const baseUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+      const res = await fetch(baseUrl + "/api/auth/login", {
         method: "POST",
         body: formData,
         credentials: "include"

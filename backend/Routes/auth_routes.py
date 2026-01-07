@@ -49,8 +49,12 @@ async def signup(
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     is_dev = os.getenv("ENV") == "development"
-    samesite = "strict" if is_dev else "none"
-    secure_cookie = not is_dev
+    if is_dev:
+        samesite = "lax"
+        secure_cookie = False
+    else:
+        samesite = "none"
+        secure_cookie = True
     r.set_cookie("session", token, httponly=True, samesite=samesite, secure=secure_cookie)
     return r
 
@@ -72,8 +76,12 @@ async def login(username: str = Form(), password: str = Form()):
     token = serializer.dumps({"username": username})
     r = JSONResponse({"message": "ok"})
     is_dev = os.getenv("ENV") == "development"
-    samesite = "strict" if is_dev else "none"
-    secure_cookie = not is_dev
+    if is_dev:
+        samesite = "lax"
+        secure_cookie = False
+    else:
+        samesite = "none"
+        secure_cookie = True
     r.set_cookie("session", token, httponly=True, samesite=samesite, secure=secure_cookie)
     return r
 
@@ -107,7 +115,11 @@ async def check(request: Request):
 async def logout():
     r = JSONResponse({"message": "ok"})
     is_dev = os.getenv("ENV") == "development"
-    samesite = "strict" if is_dev else "none"
-    secure_cookie = not is_dev
+    if is_dev:
+        samesite = "lax"
+        secure_cookie = False
+    else:
+        samesite = "none"
+        secure_cookie = True
     r.delete_cookie("session", httponly=True, samesite=samesite, secure=secure_cookie)
     return r

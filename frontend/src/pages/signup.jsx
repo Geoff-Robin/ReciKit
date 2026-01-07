@@ -42,7 +42,7 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Error",
@@ -61,7 +61,9 @@ const Signup = () => {
       form.append("likes", formData.likes);
       form.append("dislikes", formData.allergies);
       form.append("inventory", JSON.stringify(inventory));
-      const res = await fetch(import.meta.env.VITE_BACKEND_URL+"/api/auth/signup", {
+
+      const baseUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
+      const res = await fetch(baseUrl + "/api/auth/signup", {
         method: "POST",
         body: form,
         credentials: "include"

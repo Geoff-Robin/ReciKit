@@ -26,7 +26,7 @@ export default function ChatWidget({ isOpen, onClose }) {
   const sendMessageToAgent = async (userText) => {
     setIsGenerating(true);
     try {
-      const baseUrl = import.meta.env.VITE_BACKEND_URL || "";
+      const baseUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
       const response = await fetch(`${baseUrl}/api/chats`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

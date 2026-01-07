@@ -39,9 +39,15 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth, prefix="/api/auth")
 app.include_router(routes, prefix="/api")
 
+# CORS Configuration
+origins = ["http://localhost:5173", "https://reci-kit.vercel.app"]
+env_origins = os.getenv("ALLOWED_ORIGINS")
+if env_origins:
+    origins.extend([o.strip() for o in env_origins.split(",")])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://reci-kit.vercel.app"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_headers=["*"],
     allow_methods=["*"],
