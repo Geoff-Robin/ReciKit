@@ -95,6 +95,7 @@ async def get_meal_plan_tool(inventory: str, likes: str, allergies: str):
 @mcp_app.tool()
 async def add_item_to_inventory(ingredients: List[Ingredient], username: str):
     from main import get_mongo_client
+    logger.info(f"Tool 'add_item_to_inventory' invoked (ingredients: {ingredients}, username: {username})")
     mongo_client = await get_mongo_client()
     await mongo_client["ReciKit"]["Users"].update_one(
         {"username": username},
@@ -113,6 +114,7 @@ async def get_user_profile(username: str):
     Fetch the user's current inventory, likes, and allergies.
     """
     from main import get_mongo_client
+    logger.info(f"Tool 'get_user_profile' invoked (username: {username})")
     mongo_client = await get_mongo_client()
     user = await mongo_client["ReciKit"]["Users"].find_one({"username": username})
     if not user:
@@ -129,6 +131,7 @@ async def get_user_profile(username: str):
 @mcp_app.tool()
 async def update_preferences(username: str, likes: str, allergies: str):
     from main import get_mongo_client
+    logger.info(f"Tool 'update_preferences' invoked (username: {username}, likes: {likes}, allergies: {allergies})")
     mongo_client = await get_mongo_client()
     await mongo_client["ReciKit"]["Users"].update_one(
         {"username": username},
