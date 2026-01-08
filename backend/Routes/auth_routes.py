@@ -42,7 +42,7 @@ async def signup(
             "email": email,
             "password": hashed,
             "likes": likes,
-            "dislikes": dislikes,
+            "allergies": dislikes,
             "inventory": ast.literal_eval(inventory),
         }
     )
