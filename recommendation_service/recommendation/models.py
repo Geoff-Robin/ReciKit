@@ -3,9 +3,9 @@ from typing import List, Literal
 
 
 class Ingredient(BaseModel):
-    name: str
+    ingredient_name: str
     quantity: int
-    metric: Literal["gram", "kilogram", "milimeter", "liter"]
+    unit: str
 
 
 class MealItem(BaseModel):
