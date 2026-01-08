@@ -1,9 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from dotenv import load_dotenv
-
-# from groq import AsyncGroq
-# from Agent.chatbot import chatbot
-# from Agent.models import Message
 from Routes.auth_routes import current_user, get_optional_current_user
 from typing import Tuple, Dict, Any, List
 from typing import Tuple, Dict, Any, List
@@ -13,26 +9,6 @@ import os
 
 load_dotenv()
 routes = APIRouter()
-
-
-async def meal_plan_exists(username: str) -> Tuple[bool, Dict[str, Any]]:
-    try:
-        from main import get_mongo_client
-
-        mongo_client = await get_mongo_client()
-        users = mongo_client["RecipeDB"]["Users"]
-
-        user = await users.find_one(
-            {"username": username, "mealPlan": {"$exists": True}}
-        )
-
-        if not user or "mealPlan" not in user:
-            return False, {"message": "none"}
-
-        return True, user["mealPlan"]
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @routes.post("/chats")
@@ -82,9 +58,6 @@ async def get_recommendations(user: str = Depends(current_user)):
         u = await users.find_one({"username": user})
         if not u:
             raise HTTPException(status_code=404, detail="User not found")
-        check, meal_plan = await meal_plan_exists(username=user)
-        if check:
-            return meal_plan
         else:
             likes = u.get("likes", "")
             allergies = u.get("allergies", "")
