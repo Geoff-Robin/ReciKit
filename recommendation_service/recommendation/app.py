@@ -175,17 +175,175 @@ async def get_user_meal_plan(username: str):
 
 
 @mcp_app.tool()
-async def update_preferences(username: str, likes: str, allergies: str):
+async def update_preferences(username: str, likes: str = "", dislikes: str = "", allergies: str = ""):
     from main import get_mongo_client
 
     logger.info(
-        f"Tool 'update_preferences' invoked (username: {username}, likes: {likes}, allergies: {allergies})"
+        f"Tool 'update_preferences' invoked (username: {username}, likes: {likes}, dislikes: {dislikes}, allergies: {allergies})"
     )
     mongo_client = await get_mongo_client()
     try:
+        update_fields = {"likes": likes, "dislikes": dislikes, "allergies": allergies}
+        # Filter out empty strings if we want to avoid overwriting with empty? 
+        # The previous behavior was to overwrite. If the user sends nothing, it defaults to empty string.
+        # But if the tool call is intended to be a partial update, this is bad.
+        # However, the previous signature required them, so it was always a full update (or required values).
+        # To fix the "missing field" error, defaults are needed.
+        
         await mongo_client["RecipeDB"]["Users"].update_one(
-            {"username": username}, {"$set": {"likes": likes, "allergies": allergies}}
+            {"username": username}, {"$set": update_fields}
         )
     except Exception as e:
         logger.info(f"Error in update_preferences tool: {e}", exc_info=True)
         return {"error": "Failed to update preferences"}
+
+
+@mcp_app.tool()
+async def add_like(username: str, like: str):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    
+    current_likes = user.get("likes", "")
+    if current_likes:
+        # Check if already exists to avoid duplicates
+        likes_list = [l.strip() for l in current_likes.split(",")]
+        if like not in likes_list:
+            new_likes = current_likes + ", " + like
+        else:
+            new_likes = current_likes
+    else:
+        new_likes = like
+        
+    await mongo_client["RecipeDB"]["Users"].update_one(
+        {"username": username},
+        {"$set": {"likes": new_likes}}
+    )
+    return {"status": "success", "likes": new_likes}
+
+
+@mcp_app.tool()
+async def remove_like(username: str, like: str):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    
+    current_likes = user.get("likes", "")
+    if not current_likes:
+        return {"status": "success", "likes": ""}
+        
+    likes_list = [l.strip() for l in current_likes.split(",")]
+    if like in likes_list:
+        likes_list.remove(like)
+        
+    new_likes = ", ".join(likes_list)
+    
+    await mongo_client["RecipeDB"]["Users"].update_one(
+        {"username": username},
+        {"$set": {"likes": new_likes}}
+    )
+    return {"status": "success", "likes": new_likes}
+
+
+@mcp_app.tool()
+async def add_dislike(username: str, dislike: str):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    
+    current_dislikes = user.get("dislikes", "")
+    if current_dislikes:
+        dislikes_list = [d.strip() for d in current_dislikes.split(",")]
+        if dislike not in dislikes_list:
+            new_dislikes = current_dislikes + ", " + dislike
+        else:
+            new_dislikes = current_dislikes
+    else:
+        new_dislikes = dislike
+        
+    await mongo_client["RecipeDB"]["Users"].update_one(
+        {"username": username},
+        {"$set": {"dislikes": new_dislikes}}
+    )
+    return {"status": "success", "dislikes": new_dislikes}
+
+
+@mcp_app.tool()
+async def remove_dislike(username: str, dislike: str):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    
+    current_dislikes = user.get("dislikes", "")
+    if not current_dislikes:
+        return {"status": "success", "dislikes": ""}
+        
+    dislikes_list = [d.strip() for d in current_dislikes.split(",")]
+    if dislike in dislikes_list:
+        dislikes_list.remove(dislike)
+        
+    new_dislikes = ", ".join(dislikes_list)
+    
+    await mongo_client["RecipeDB"]["Users"].update_one(
+        {"username": username},
+        {"$set": {"dislikes": new_dislikes}}
+    )
+    return {"status": "success", "dislikes": new_dislikes}
+
+
+@mcp_app.tool()
+async def add_allergy(username: str, allergy: str):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    
+    current_allergies = user.get("allergies", "")
+    if current_allergies:
+        allergies_list = [a.strip() for a in current_allergies.split(",")]
+        if allergy not in allergies_list:
+            new_allergies = current_allergies + ", " + allergy
+        else:
+            new_allergies = current_allergies
+    else:
+        new_allergies = allergy
+        
+    await mongo_client["RecipeDB"]["Users"].update_one(
+        {"username": username},
+        {"$set": {"allergies": new_allergies}}
+    )
+    return {"status": "success", "allergies": new_allergies}
+
+
+@mcp_app.tool()
+async def remove_allergy(username: str, allergy: str):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    user = await mongo_client["RecipeDB"]["Users"].find_one({"username": username})
+    if not user:
+        return {"error": "User not found"}
+    
+    current_allergies = user.get("allergies", "")
+    if not current_allergies:
+        return {"status": "success", "allergies": ""}
+        
+    allergies_list = [a.strip() for a in current_allergies.split(",")]
+    if allergy in allergies_list:
+        allergies_list.remove(allergy)
+        
+    new_allergies = ", ".join(allergies_list)
+    
+    await mongo_client["RecipeDB"]["Users"].update_one(
+        {"username": username},
+        {"$set": {"allergies": new_allergies}}
+    )
+    return {"status": "success", "allergies": new_allergies}
