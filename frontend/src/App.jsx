@@ -6,6 +6,7 @@ import SignUp from '@/pages/signup.jsx'
 import MealPlanApp from "@/pages/MealPlan";
 import Chatbot from "@/pages/chatbot";
 import ChatWidget from "@/pages/ChatWidget";
+import Inventory from "@/pages/inventory.jsx";
 import { MessageSquare } from "lucide-react";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/home" element={<MealPlanApp />} />
           <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/inventory" element={<Inventory />} />
         </Routes>
 
         {/* Floating Action Button */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { LogOut, MessageCircle } from "lucide-react";
+import { LogOut, MessageCircle, ShoppingBasket } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import MealCard from "@/components/ui/MealCard";
 import DayNavigation from "@/components/ui/DayNavigation";
@@ -129,7 +129,13 @@ const MealPlanApp = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Logout Button */}
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-between mb-4">
+          <Link to="/inventory">
+            <button className="flex items-center gap-2 px-4 py-2 bg-white text-emerald-600 rounded-lg shadow-md hover:shadow-lg hover:bg-emerald-50 transition-all font-semibold">
+              <ShoppingBasket className="w-4 h-4" />
+              Inventory
+            </button>
+          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 rounded-lg shadow-md hover:shadow-lg hover:bg-red-50 transition-all font-semibold"

@@ -11,6 +11,36 @@ load_dotenv()
 routes = APIRouter()
 
 
+@routes.get("/inventory")
+async def get_inventory(user: str = Depends(current_user)):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    db = mongo_client["RecipeDB"]
+    users = db.Users
+    u = await users.find_one({"username": user})
+    if not u:
+         raise HTTPException(status_code=404, detail="User not found")
+    return u.get("inventory", [])
+
+
+@routes.post("/inventory")
+async def update_inventory(request: Request, inventory: List[Dict[str, Any]], user: str = Depends(current_user)):
+    from main import get_mongo_client
+    mongo_client = await get_mongo_client()
+    db = mongo_client["RecipeDB"]
+    users = db.Users
+    
+    result = await users.update_one(
+        {"username": user},
+        {"$set": {"inventory": inventory}}
+    )
+    
+    if result.modified_count == 0 and result.matched_count == 0:
+         raise HTTPException(status_code=404, detail="User not found")
+         
+    return {"message": "Inventory updated", "count": len(inventory)}
+
+
 @routes.post("/chats")
 async def chat_endpoint(request: Request, payload: dict, user: str = Depends(get_optional_current_user)):
     try:
