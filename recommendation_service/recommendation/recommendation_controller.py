@@ -2,6 +2,7 @@ from async_lru import alru_cache
 from fastembed import TextEmbedding
 import numpy as np
 from main import get_mongo_client, get_qdrant_client
+from recommendation.logger import logger
 from bson import ObjectId
 
 
@@ -16,9 +17,14 @@ async def get_recommendation(inventory: str, likes: str, allergies: str):
     mongo_client = await get_mongo_client()
     qdrant_client = await get_qdrant_client()
 
-    inventory_vec = next(embedder.embed(inventory))
-    like_vec = next(embedder.embed(likes))
-    allergies_vec = next(embedder.embed(allergies))
+    logger.info(f"Generating embeddings for inventory, likes, and allergies")
+    try:
+        inventory_vec = next(embedder.embed(inventory)) if inventory else np.zeros(384)
+        like_vec = next(embedder.embed(likes)) if likes else np.zeros(384)
+        allergies_vec = next(embedder.embed(allergies)) if allergies else np.zeros(384)
+    except Exception as e:
+        logger.error(f"Embedding failed: {e}")
+        raise
 
     result = await qdrant_client.query_points(
         collection_name="Recipes",
@@ -40,18 +46,33 @@ async def get_recommendation(inventory: str, likes: str, allergies: str):
 
     out = []
     for p in points:
-        rid = p.payload["_id"]
-        recipe = await mongo_client.RecipeDB.Recipes.find_one({"_id": ObjectId(rid)})
-        if not recipe:
+        try:
+            rid = p.payload.get("_id")
+            if not rid:
+                continue
+                
+            recipe = await mongo_client.RecipeDB.Recipes.find_one({"_id": ObjectId(rid)})
+            if not recipe:
+                continue
+            
+            # Ensure fields are safe to join or process later
+            ner = recipe.get("NER")
+            if isinstance(ner, list):
+                ner = ", ".join(str(n) for n in ner)
+            elif not isinstance(ner, str):
+                ner = str(ner) if ner else ""
+
+            p.payload.update(
+                {
+                    "title": str(recipe.get("title", "Untitled")),
+                    "ingredients": recipe.get("ingredients", []),
+                    "directions": recipe.get("directions", []),
+                    "NER": ner,
+                }
+            )
+            out.append(p.payload)
+        except Exception as e:
+            logger.warning(f"Failed to process recipe {rid}: {e}")
             continue
-        p.payload.update(
-            {
-                "title": recipe.get("title"),
-                "ingredients": recipe.get("ingredients"),
-                "directions": recipe.get("directions"),
-                "NER": recipe.get("NER"),
-            }
-        )
-        out.append(p.payload)
 
     return out

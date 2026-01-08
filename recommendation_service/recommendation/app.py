@@ -38,18 +38,24 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
 
     logger.info(f"Tool 'get_meal_plan' invoked (inventory size: {len(inventory)})")
     try:
+        logger.info("Calling get_recommendation...")
         search_results = await get_recommendation(inventory, likes, allergies)
+        logger.info(f"Search results found: {len(search_results)}")
+        
         filtered_results = []
         for result in search_results:
-            directions_list = parse_directions(result["directions"])
-            directions = "\n".join(directions_list)
+            directions_list = parse_directions(result.get("directions", []))
+            # Ensure all elements are strings before joining
+            directions = "\n".join(str(d) for d in directions_list if d)
             filtered_results.append(
                 {
-                    "title": result["title"],
+                    "title": result.get("title", "Untitled"),
                     "directions": directions,
-                    "ingredients": result["NER"],
+                    "ingredients": result.get("NER", ""),
                 }
             )
+        
+        logger.info("Sending request to Groq for meal plan...")
         groq_client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
         response = await groq_client.chat.completions.create(
             model=os.getenv("MODEL_NAME"),
@@ -72,8 +78,12 @@ async def get_meal_plan(inventory: str, likes: str, allergies: str):
             },
         )
         raw_content = response.choices[0].message.content
-        meal_plan_json = json.loads(raw_content)
-        return meal_plan_json
+        try:
+            meal_plan_json = json.loads(raw_content)
+            return meal_plan_json
+        except json.JSONDecodeError as e:
+            logger.error(f"Groq returned invalid JSON: {raw_content[:500]}...")
+            raise HTTPException(status_code=500, detail="LLM returned invalid meal plan format")
     except Exception as e:
         logger.error(f"Error in get_meal_plan tool: {e}", exc_info=True)
         raise

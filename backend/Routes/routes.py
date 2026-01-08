@@ -78,10 +78,19 @@ async def get_recommendations(user: str = Depends(current_user)):
                     "allergies": allergies,
                 },
             )
+            if not result.ok:
+                try:
+                    error_detail = result.json()
+                except:
+                    error_detail = result.text
+                print(f"Recommendation Service Error ({result.status_code}): {error_detail}")
+                raise HTTPException(status_code=result.status_code, detail=f"Recommendation Service Error: {error_detail}")
+                
+            resp_data = result.json()
             await users.update_one(
-                {"username": user}, {"$set": {"mealPlan": result.json()}}
+                {"username": user}, {"$set": {"mealPlan": resp_data}}
             )
-            return result.json()
+            return resp_data
 
     except Exception as e:
         if isinstance(e, requests.exceptions.RequestException):
