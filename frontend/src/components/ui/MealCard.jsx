@@ -7,7 +7,7 @@ const MealCard = ({ meal }) => {
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
       {/* Card Header */}
-      <div 
+      <div
         className="p-4 cursor-pointer hover:bg-gray-50"
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -39,7 +39,7 @@ const MealCard = ({ meal }) => {
             <ul className="space-y-1 ml-2">
               {meal.ingredients?.map((ingredient, index) => (
                 <li key={index} className="text-gray-700 text-sm">
-                  • {ingredient.name}: {ingredient.quantity} {ingredient.metric}
+                  • {ingredient.ingredient_name}: {ingredient.quantity} {ingredient.unit}
                 </li>
               ))}
             </ul>

@@ -10,12 +10,13 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
     try {
       const formData = new FormData();
       formData.append("username", username);
@@ -27,9 +28,19 @@ const Login = () => {
         body: formData,
         credentials: "include"
       });
-      if (!res.ok) return;
+
+      if (!res.ok) {
+        const data = await res.json();
+        if (data.detail === "invalid creds") {
+          setError("Invalid username or password. Please try again.");
+        } else {
+          setError(data.detail || "Something went wrong. Please try again later.");
+        }
+        return;
+      }
       navigate("/home");
     } catch (err) {
+      setError("Connection error. Please check your internet or server status.");
       console.error("Login error:", err);
     } finally {
       setLoading(false);
@@ -48,6 +59,11 @@ const Login = () => {
         </div>
 
         <div className="bg-card rounded-2xl shadow-xl p-8 border border-border/50 backdrop-blur-sm">
+          {error && (
+            <div className="mb-6 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium animate-in fade-in slide-in-from-top-1">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="username" className="text-foreground">Username</Label>

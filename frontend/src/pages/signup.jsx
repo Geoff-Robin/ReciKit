@@ -13,6 +13,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -42,8 +43,10 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
       toast({
         title: "Error",
         description: "Passwords do not match",
@@ -73,9 +76,14 @@ const Signup = () => {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data.detail === "User exists") {
+          setError("That username is already taken. Please choose another.");
+        } else {
+          setError(data.detail || "Failed to create account. Please check your information.");
+        }
         toast({
           title: "Error",
-          description: data.message || "Failed to create account",
+          description: data.detail || "Failed to create account",
           variant: "destructive",
         });
         return;
@@ -87,10 +95,11 @@ const Signup = () => {
       });
 
       navigate("/home");
-    } catch (error) {
+    } catch (err) {
+      setError("Connection error. Could not reach the server.");
       toast({
         title: "Error",
-        description: error?.message || "Server error",
+        description: err?.message || "Server error",
         variant: "destructive",
       });
     } finally {
@@ -117,6 +126,11 @@ const Signup = () => {
         </div>
 
         <div className="bg-card rounded-2xl shadow-xl p-8 border border-border/50 backdrop-blur-sm">
+          {error && (
+            <div className="mb-6 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium animate-in fade-in slide-in-from-top-1">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="name">Username</Label>
