@@ -57,6 +57,7 @@ const Signup = () => {
     try {
       const form = new FormData();
       form.append("username", formData.name);
+      form.append("email", formData.email);
       form.append("password", formData.password);
       form.append("likes", formData.likes);
       form.append("dislikes", formData.allergies);
