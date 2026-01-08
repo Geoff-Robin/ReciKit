@@ -61,10 +61,14 @@ async def get_recommendations(user: str = Depends(current_user)):
         else:
             likes = u.get("likes", "")
             allergies = u.get("allergies", "")
-            inventory_list = u.get("inventory", "")
+            inventory_list = u.get("inventory", [])
+            if not isinstance(inventory_list, list):
+                inventory_list = []
+                
             inventory_str = ", ".join(
-                f"{item['ingredient_name']} {item['quantity']} {item['unit']}"
+                f"{item.get('ingredient_name') or item.get('name', 'Unknown')} {item.get('quantity', '')} {item.get('unit') or item.get('metric', '')}"
                 for item in inventory_list
+                if isinstance(item, dict) and (item.get('ingredient_name') or item.get('name'))
             )
             result = requests.get(
                 os.getenv("RECOMMENDATION_SERVICE_URL") + "/api/mealplan/",

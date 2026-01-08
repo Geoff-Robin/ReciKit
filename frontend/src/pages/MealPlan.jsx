@@ -24,12 +24,17 @@ const checkAndLoad = (setWeeklyMealPlan, setLoading) => {
     })
     .then((res) => {
       if (!res.ok) {
-        throw new Error(res.error);
+        throw new Error(`API Error: ${res.status} ${res.statusText}`);
       }
       return res.json();
     })
     .then((data) => {
-      setWeeklyMealPlan(data);
+      if (data && typeof data === 'object' && !data.detail) {
+        setWeeklyMealPlan(data);
+      } else {
+        console.error("Invalid data structure received:", data);
+        setWeeklyMealPlan(null);
+      }
       setLoading(false);
     })
     .catch((err) => {
@@ -167,7 +172,7 @@ const MealPlanApp = () => {
                 {mealType}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentDayPlan[mealType]?.map((meal, index) => (
+                {Array.isArray(currentDayPlan[mealType]) && currentDayPlan[mealType].map((meal, index) => (
                   <MealCard
                     key={`${currentDayName}-${mealType}-${index}`}
                     meal={meal}

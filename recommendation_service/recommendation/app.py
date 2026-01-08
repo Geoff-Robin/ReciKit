@@ -15,23 +15,9 @@ stateless_http_flag = True if not os.environ.get("STDIO_TRANSPORT") == "true" el
 mcp_app = FastMCP("MCP Server for RecSys", stateless_http=stateless_http_flag)
 
 
-@mcp_app.tool()
-async def get_recommendation_tool(likes: str, dislikes: str):
-    from recommendation.recommendation_controller import get_recommendation
-
-    logger.info(
-        f"Tool 'get_recommendation' invoked (likes: {likes}, dislikes: {dislikes})"
-    )
-    try:
-        results = await get_recommendation(likes, dislikes)
-        logger.info(f"Returning {len(results)} recommendations")
-        return results
-    except Exception as e:
-        logger.error(f"Error in get_recommendation tool: {e}", exc_info=True)
-        raise
-
-
 def parse_directions(directions: str | List[str]):
+    if not directions:
+        return []
     if isinstance(directions, list):
         return directions
     try:
